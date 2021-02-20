@@ -16,7 +16,6 @@ from rest_framework.views import APIView
 from django.http import JsonResponse
 
 
-
 class RoomView(ListAPIView):
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
@@ -61,12 +60,14 @@ def JoinRoomView(request, *args, **kwargs):
     # is the name that is sent as post request from room page in react
     if not request.session.exists(request.session.session_key):
         request.session.create()
+        print("CREATING IN JOIN ROOM VIEW")
     code = request.data.get(lookup_url_kwargs)
     # print("CODE", code)
     queryset = Room.objects.filter(code=code)
     if queryset is not None:
         room = queryset[0]
         request.session["Room_code"] = code
+        print(request.session["Room_code"], "IN JOIN ", request.session.session_key)
         return Response({"message": "Room Joined"}, status=status.HTTP_200_OK)
 
     return Response(
@@ -75,12 +76,29 @@ def JoinRoomView(request, *args, **kwargs):
     )
 
 
+@api_view(["POST"])
+def UserLeaveRoomView(request):
+    print(f"session_key={request.session.session_key}")
+    if "Room_code" in request.session:
+        host_id = request.session.session_key
+        print(f"hostid= {host_id}")
+        room = Room.objects.filter(host=host_id)
+        if len(room) >= 0:
+            print("POP", request.session.pop("Room_code"))
+            print(f"room= {room}")
+            room[0].delete()
+        else:
+            print("POP", request.session.pop("Room_code"))
+    return Response({"Message": "SUCCESS"}, status=status.HTTP_200_OK)
+
+
 @api_view(["GET"])
 def UserinRoomView(request):
     if not request.session.exists(request.session.session_key):
         request.session.create()
+        print("CREATING IN USERIN ROOM VIEW")
     code = request.session.get("Room_code")
-    print("code_sess", code)
+    print("code_sess in userinroom", code)
     return JsonResponse({"code": code}, status=status.HTTP_200_OK)
 
 

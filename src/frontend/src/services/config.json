@@ -2,6 +2,7 @@
     "apiEndpointgetRoom": "/api/getroom/",
     "apiEndpointJoinRoom" : "/api/joinroom/",
     "gotoRoom" : "/room/",
-    "apiEndpointCreateRoom": "/api/createroom/"
+    "apiEndpointCreateRoom": "/api/createroom/",
+    "apiEndpointLeaveRoom" : "/api/userleaveroom/"
 
 }

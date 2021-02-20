@@ -8,7 +8,7 @@ from django.views.generic import TemplateView
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("music_room.urls")),
-    path("", TemplateView.as_view(template_name="index.html")),
+    # path("", TemplateView.as_view(template_name="index.html")),
     path("homepage/", TemplateView.as_view(template_name="index.html")),
     path("room/", TemplateView.as_view(template_name="index.html")),
     path("joinroom/", TemplateView.as_view(template_name="index.html")),

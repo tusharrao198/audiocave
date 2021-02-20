@@ -11,7 +11,10 @@ import JoinRoom from './components/joinroom';
 import Room from './components/room';
 import CreateRoom from './components/createroom';
 import NotFound from './components/notfound';
-// import { confirmAlert } from 'react-confirm-alert';
+// import {withRouter} from 'react-router-dom';
+import { confirmAlert } from 'react-confirm-alert';
+import "react-confirm-alert/src/react-confirm-alert.css";
+
 
 class App extends Component {
   state = { 
@@ -21,27 +24,20 @@ class App extends Component {
   async componentDidMount() {
       const {data} = await axios.get(`/api/userinroom/`);
       this.setState({roomCode: data.code});
-      // console.log("ROOOOOOOM",this.state.roomCode);
+      console.log("ROOOOOOOM",this.state.roomCode);
   }
 
-  // async componentDidUpdate() {
-  //   window.addEventListener('load', this.handleredirectSession);
-  // }
-
-  // handleredirectSession = async(props) => {
-  //   console.log("wwwwwwwwww")
-  //   console.log("ROOMCODE::::::", this.state.roomCode);
-  //   if (this.state.roomCode !== null) {
-  //     console.log("SSSSSSS")
-  //     alert('Session found!');
-  //     // <Redirect to={`/room/${this.state.roomCode}`}/>
-  //     this.props.history.push(`/room/${this.state.roomCode}`);
-  //   }else {
-  //     console.log("NNNNNNNNNNNNNNNNNNNNNNNNNNNnnn");
-  //     this.props.history.push(`/`);
-  //     // <Redirect to={"/"}/>
-  //   }
-  // };
+  handleredirectSession = () => {
+    console.log("ROOMCODE::::::", this.state.roomCode);
+    if (this.state.roomCode !== null) {
+      // console.log("SSSSSSS")
+      alert('Session found!');
+      return <Redirect to={`/room/${this.state.roomCode}`}/>
+    }else {
+      // console.log("NNNNNNNNNNNnnn");
+      return <Redirect to={"/homepage"}/>
+    }
+  };
 
   render() { 
     return ( 
@@ -50,17 +46,18 @@ class App extends Component {
           <Navbar/>
           <main className="container">
             <Switch>
-                {/* <Route exact path="/" render={this.handleredirectSession}/> */}
-                <Route exact path="/" render={() => {
+                <Route exact path="/homepage" render={this.handleredirectSession}/>
+                {/* <Route exact path="/" render={() => {
                     return this.state.roomCode ? (
                       <Redirect to={`/room/${this.state.roomCode}`} />
-                    ) : (<Redirect to="/"/>);}}
-                />
+                    ) : (<Redirect to="/homepage"/>);}}
+                /> */}
+                <Route path="/homepage" exact component={Homepage}/>
                 <Route path="/joinroom" exact component= {JoinRoom}/>
                 <Route path="/createroom" exact component={CreateRoom}/>
                 <Route path="/room/:roomCode" exact component={Room}/>
                 <Route path="/notfound" exact component={NotFound}/>
-                <Redirect from="/homepage" exact to="/"/>
+                <Redirect from="/" exact to="/homepage"/>
                 <Redirect to="/notfound"/>
             </Switch>
           </main>
