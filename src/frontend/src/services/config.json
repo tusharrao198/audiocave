@@ -1,0 +1,7 @@
+{
+    "apiEndpointgetRoom": "/api/getroom/",
+    "apiEndpointJoinRoom" : "/api/joinroom/",
+    "gotoRoom" : "/room/",
+    "apiEndpointCreateRoom": "/api/createroom/"
+
+}

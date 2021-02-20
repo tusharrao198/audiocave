@@ -1,0 +1,95 @@
+import React, { Component } from 'react';
+import './App.css';
+import {Redirect, Route, Switch, Link} from "react-router-dom";
+import {ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './index.css';
+import axios from 'axios';
+import Navbar from './components/navbar';
+import Homepage from './components/homepage';
+import JoinRoom from './components/joinroom';
+import Room from './components/room';
+import CreateRoom from './components/createroom';
+import NotFound from './components/notfound';
+// import { confirmAlert } from 'react-confirm-alert';
+
+class App extends Component {
+  state = { 
+    roomCode: null,
+  }
+
+  async componentDidMount() {
+      const {data} = await axios.get(`/api/userinroom/`);
+      this.setState({roomCode: data.code});
+      // console.log("ROOOOOOOM",this.state.roomCode);
+  }
+
+  // async componentDidUpdate() {
+  //   window.addEventListener('load', this.handleredirectSession);
+  // }
+
+  // handleredirectSession = async(props) => {
+  //   console.log("wwwwwwwwww")
+  //   console.log("ROOMCODE::::::", this.state.roomCode);
+  //   if (this.state.roomCode !== null) {
+  //     console.log("SSSSSSS")
+  //     alert('Session found!');
+  //     // <Redirect to={`/room/${this.state.roomCode}`}/>
+  //     this.props.history.push(`/room/${this.state.roomCode}`);
+  //   }else {
+  //     console.log("NNNNNNNNNNNNNNNNNNNNNNNNNNNnnn");
+  //     this.props.history.push(`/`);
+  //     // <Redirect to={"/"}/>
+  //   }
+  // };
+
+  render() { 
+    return ( 
+      <React.Fragment>
+        <ToastContainer/>
+          <Navbar/>
+          <main className="container">
+            <Switch>
+                {/* <Route exact path="/" render={this.handleredirectSession}/> */}
+                <Route exact path="/" render={() => {
+                    return this.state.roomCode ? (
+                      <Redirect to={`/room/${this.state.roomCode}`} />
+                    ) : (<Redirect to="/"/>);}}
+                />
+                <Route path="/joinroom" exact component= {JoinRoom}/>
+                <Route path="/createroom" exact component={CreateRoom}/>
+                <Route path="/room/:roomCode" exact component={Room}/>
+                <Route path="/notfound" exact component={NotFound}/>
+                <Redirect from="/homepage" exact to="/"/>
+                <Redirect to="/notfound"/>
+            </Switch>
+          </main>
+      </React.Fragment>
+     );
+  }
+}
+ 
+export default App;
+
+// function App() {
+//   return (
+//     <div className="App">
+//       <header className="App-header">
+//         <img src={logo} className="App-logo" alt="logo" />
+//         <p>
+//           HELLO WORLD!
+//         </p>
+//         <a
+//           className="App-link"
+//           href="https://reactjs.org"
+//           target="_blank"
+//           rel="noopener noreferrer"
+//         >
+//           Learn React
+//         </a>
+//       </header>
+//     </div>
+//   );
+// }
+
+// export default App;

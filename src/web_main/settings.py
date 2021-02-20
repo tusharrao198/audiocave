@@ -14,6 +14,7 @@ import os
 import psycopg2
 from pathlib import Path
 from decouple import config
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +27,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config("DEBUG")
+try:
+    DEBUG = config("DEBUG")
+except:
+    DEBUG = os.environ.get("DEBUG")
 
 ALLOWED_HOSTS = ["*"]
 
@@ -34,51 +38,57 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-    'music_room.apps.MusicRoomConfig',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "music_room.apps.MusicRoomConfig",
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
     "django_extensions",
     "ckeditor",
+    "corsheaders",
     "rest_framework",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'web_main.urls'
+ROOT_URLCONF = "web_main.urls"
 
 TEMPLATE_DIR = os.path.join(BASE_DIR, "music_room", "templates", "music_room/")
 
+
+TEMPLATE_DIR = os.path.join(BASE_DIR, "frontend/build")
+
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
             TEMPLATE_DIR,
         ],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'web_main.wsgi.application'
+WSGI_APPLICATION = "web_main.wsgi.application"
 
 
 # Database
@@ -91,32 +101,57 @@ WSGI_APPLICATION = 'web_main.wsgi.application'
 #     }
 # }
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "USER": config("DB_USER"),
-        "NAME": config("DB_NAME"),
-        "HOST": config("DB_HOST"),
-        "PASSWORD": config("DB_PASSWORD"),
-        "PORT": config("DB_PORT"),
-    },
-}
+try:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql_psycopg2",
+            "USER": config("DB_USER"),
+            "NAME": config("DB_NAME"),
+            "HOST": config("DB_HOST"),
+            "PASSWORD": config("DB_PASSWORD"),
+            "PORT": config("DB_PORT"),
+        },
+    }
+
+except:
+    pass
+    # try:
+    #     DB_HEROKU_URL = os.environ.get("DB_HEROKU_URL")
+    #     DATABASES["default"] = dj_database_url.config(
+    #         conn_max_age=600, ssl_require=True
+    #     )
+    #     DATABASES["default"] = dj_database_url.config(default=DB_HEROKU_URL)
+    #     DATABASES["default"] = dj_database_url.parse(
+    #         DB_HEROKU_URL,
+    #         conn_max_age=600,
+    #     )
+
+    # except:
+    #     DB_HEROKU_URL = os.environ.get("DATABASE_URL")
+    #     DATABASES["default"] = dj_database_url.config(
+    #         conn_max_age=600, ssl_require=True
+    #     )
+    #     DATABASES["default"] = dj_database_url.config(default=DB_HEROKU_URL)
+    #     DATABASES["default"] = dj_database_url.parse(
+    #         DB_HEROKU_URL,
+    #         conn_max_age=600,
+    #     )
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -124,9 +159,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -140,8 +175,16 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "frontend/build/static")]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "music_room/static/music_room/images/")
 
 MEDIA_URL = "/music_room/static/music_room/images/"
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+CORS_ORIGIN_WHITELIST = [
+    "https://localhost:3000",
+]
