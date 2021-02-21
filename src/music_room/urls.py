@@ -6,7 +6,7 @@ from .views import (
     CreateRoomView,
     GetRoomView,
     JoinRoomView,
-    # UserinRoomView,
+    UserinRoomView,
     UserLeaveRoomView,
 )
 
@@ -16,6 +16,6 @@ urlpatterns = [
     path("api/createroom/", CreateRoomView.as_view(), name="create-room-api"),
     path("api/getroom/<str:code>/", views.GetRoomView, name="getroom-api"),
     path("api/joinroom/", views.JoinRoomView, name="joinroom-api"),
-    # path("api/userinroom/", views.UserinRoomView, name="userinroom-api"),
+    path("api/userinroom/", views.UserinRoomView, name="userinroom-api"),
     path("api/userleaveroom/", views.UserLeaveRoomView, name="userleaveroom-api"),
 ]

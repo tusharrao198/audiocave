@@ -86,29 +86,36 @@ def UserLeaveRoomView(request):
             room[0].delete()
         else:
             print("ELSE POP", request.session.pop("Room_code"))
-    return Response({"Message": "SUCCESS"}, status=status.HTTP_200_OK)
+        return Response({"Message": "SUCCESS"}, status=status.HTTP_200_OK)
+    return Response({"BAD REQUEST": "USER/You ALREADY LEFT"}, status=status.HTTP_404_NOT_FOUND)
 
 
-# @api_view(["GET"])
-# def UserinRoomView(request):
-#     if not request.session.exists(request.session.session_key):
-#         request.session.create()
-#         print("CREATING IN USERIN ROOM VIEW")
-#     code = request.session.get("Room_code")
-#     print("code_sess in userinroom", code)
-#     return JsonResponse({"code": code}, status=status.HTTP_200_OK)
+
+@api_view(["GET"])
+def UserinRoomView(request):
+    if not request.session.exists(request.session.session_key):
+        request.session.create()
+        print("CREATING IN USERIN ROOM VIEW")
+    code = request.session.get("Room_code")
+    print("code_sess in userinroom", code)
+    return JsonResponse({"code": code}, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
 def GetRoomView(request, code):
-    queryset = Room.objects.filter(code=code)
-    if queryset is not None:
-        data = RoomSerializer(queryset[0]).data
-        data["ishost"] = request.session.session_key == queryset[0].host
-        serializer = RoomSerializer(queryset, many=True)
-        return Response(data, status=status.HTTP_200_OK)
+    print(f"session_key={request.session.session_key}")
+    if request.session.get("Room_code") == code:
+        print("YES WORKING")
+        queryset = Room.objects.filter(code=code)
+        if queryset is not None:
+            data = RoomSerializer(queryset[0]).data
+            data["RoomCodeinSession"] = code
+            data["ishost"] = request.session.session_key == queryset[0].host
+            serializer = RoomSerializer(queryset, many=True)
+            return Response(data, status=status.HTTP_200_OK)
+    print("ROOM NOT FOUND IN GETROOMVIEW")
+    return Response({"BAD REQUEST": "ROOM LEFT BY USER"},status=status.HTTP_404_NOT_FOUND)
 
-    return Response(
-        {"Room not found": "Invalid Room Code"},
-        status=status.HTTP_404_NOT_FOUND,
-    )
+# inthis getroom view function we are getting room code from url in this function and in react also.
+# so what we need to do is we need to check that the user have that roomcode added in his session. If both matches in this function above
+# then we will send the code as json response and we will get this code in react using api and setting rooomcode state.

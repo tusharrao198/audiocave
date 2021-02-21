@@ -9,34 +9,42 @@ class Room extends Component {
     guest_can_pause: false,
     votes_count_to_skip: 2,
     isHost: false,
-    code: this.props.match.params.roomCode,
+    codeFromURL: this.props.match.params.roomCode, // getting from url
+    code: null, // will be updated from code
   };
 
   async componentDidMount() {
-    console.log("After condiition", this.state.code);
+    console.log("After condiition from url", this.state.codeFromURL);
+    const { codeFromURL } = this.state;
+    console.log("CODEFROM URL START ", codeFromURL);
     try {
-      const { code } = this.state;
       console.log("A1");
-      if (code !== null) {
-        const { data } = await axios.get(config.apiEndpointgetRoom + `${code}`);
-        console.log("DATA", data);
+      if (codeFromURL !== null) {
+        const { data } = await axios.get(
+          config.apiEndpointgetRoom + `${codeFromURL}`
+        );
+        console.log("DATA", data.code);
+        console.log("DATA", data.RoomCodeinSession);
         console.log("A2");
         this.setState({
           guest_can_pause: data.guest_can_pause,
           votes_count_to_skip: data.votes_count_to_skip,
           isHost: data.ishost,
+          codeFromURL: data.RoomCodeinSession,
         });
       } else {
         console.log("E1");
-        this.props.history.replace("/homepage");
+        this.props.history.replace("/");
       }
     } catch (ex) {
+      toast.error("REDIRECTED TO HOMEPAGE");
+      this.props.history.replace("/");
       if (
         ex.response &&
         ex.response.status >= 400 &&
         ex.response.status <= 500
       ) {
-        toast.error("INVALID ROOM ID");
+        toast.error("Already Left||INVALID ROOM ID");
       } else {
         toast.error("UNEXPECTED ERROR");
       }
@@ -59,12 +67,6 @@ class Room extends Component {
       }
     }
   };
-
-  // handlBackButtonPress = async() => {
-  //     const {data} = await axios.post(config.apiEndpointLeaveRoom);
-  //     console.log("LEAVE ROOM",data);
-  //     this.props.history.replace("/");
-  // };
 
   render() {
     const { guest_can_pause, code, votes_count_to_skip, isHost } = this.state;

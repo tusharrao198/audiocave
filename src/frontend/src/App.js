@@ -5,38 +5,38 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
 import axios from "axios";
-import Navbar from "./components/navbar";
-import Homepage from "./components/homepage";
 import JoinRoom from "./components/joinroom";
 import Room from "./components/room";
 import CreateRoom from "./components/createroom";
 import NotFound from "./components/notfound";
+import Navbar from "./components/navbar";
+import Homepage from "./components/homepage";
 // import {withRouter} from 'react-router-dom';
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 
 class App extends Component {
-  // state = {
-  //   roomCode: null,
-  // };
-  //
-  // async componentDidMount() {
-  //   const { data } = await axios.get(`/api/userinroom/`);
-  //   this.setState({ roomCode: data.code });
-  //   console.log("ROOOOOOOM", this.state.roomCode);
-  // }
+  state = {
+    roomCode: null,
+  };
 
-  // handleredirectSession = () => {
-  //   console.log("ROOMCODE::::::", this.state.roomCode);
-  //   if (this.state.roomCode !== null) {
-  //     // console.log("SSSSSSS")
-  //     alert('Session found!');
-  //     return <Redirect to={`/room/${this.state.roomCode}`}/>
-  //   }else {
-  //     // console.log("NNNNNNNNNNNnnn");
-  //     return <Redirect to={"/homepage"}/>
-  //   }
-  // };
+  async componentDidMount() {
+    const { data } = await axios.get(`/api/userinroom/`);
+    this.setState({ roomCode: data.code });
+    console.log("ASYNC APP>JS ROOOOM", this.state.roomCode);
+  }
+
+  handleredirectSession = () => {
+    console.log("ROOMCODE::::::", this.state.roomCode);
+    if (this.state.roomCode !== null) {
+      console.log("SSSSSSS");
+      alert("Session found!");
+      return <Redirect to={`/room/${this.state.roomCode}`} />;
+    } else {
+      console.log("NNNNNNNNNNNnnn");
+      return <Redirect to={"/homepage"} />;
+    }
+  };
   //
   // clearRoomCode() {
   //   this.setState({
@@ -51,12 +51,12 @@ class App extends Component {
         <Navbar />
         <main className="container">
           <Switch>
-            <Route path="/homepage" exact component={Homepage} />
+            <Route exact path="/homepage" render={this.handleredirectSession} />
             <Route path="/joinroom" exact component={JoinRoom} />
             <Route path="/createroom" exact component={CreateRoom} />
             <Route path="/room/:roomCode" exact component={Room} />
             <Route path="/notfound" exact component={NotFound} />
-            // <Redirect from="/" exact to="/homepage" />
+            <Redirect from="/" to="/homepage" />
             <Redirect to="/notfound" />
           </Switch>
         </main>
