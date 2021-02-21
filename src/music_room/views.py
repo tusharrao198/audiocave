@@ -1,5 +1,4 @@
 from django.shortcuts import render
-
 # from django.http import HttpResponse
 from django.db import models
 from rest_framework.generics import ListAPIView, CreateAPIView
@@ -7,10 +6,8 @@ from .models import Room
 from .serializers import RoomSerializer, CreateRoomSerializer
 from rest_framework.response import Response
 from rest_framework import status
-
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-
 # from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from django.http import JsonResponse
@@ -62,7 +59,7 @@ def JoinRoomView(request, *args, **kwargs):
         request.session.create()
         print("CREATING IN JOIN ROOM VIEW")
     code = request.data.get(lookup_url_kwargs)
-    # print("CODE", code)
+    print("Joining CODE", code)
     queryset = Room.objects.filter(code=code)
     if queryset is not None:
         room = queryset[0]
@@ -83,23 +80,23 @@ def UserLeaveRoomView(request):
         host_id = request.session.session_key
         print(f"hostid= {host_id}")
         room = Room.objects.filter(host=host_id)
-        if len(room) >= 0:
-            print("POP", request.session.pop("Room_code"))
+        if len(room) > 0:
+            print("IF POP", request.session.pop("Room_code"))
             print(f"room= {room}")
             room[0].delete()
         else:
-            print("POP", request.session.pop("Room_code"))
+            print("ELSE POP", request.session.pop("Room_code"))
     return Response({"Message": "SUCCESS"}, status=status.HTTP_200_OK)
 
 
-@api_view(["GET"])
-def UserinRoomView(request):
-    if not request.session.exists(request.session.session_key):
-        request.session.create()
-        print("CREATING IN USERIN ROOM VIEW")
-    code = request.session.get("Room_code")
-    print("code_sess in userinroom", code)
-    return JsonResponse({"code": code}, status=status.HTTP_200_OK)
+# @api_view(["GET"])
+# def UserinRoomView(request):
+#     if not request.session.exists(request.session.session_key):
+#         request.session.create()
+#         print("CREATING IN USERIN ROOM VIEW")
+#     code = request.session.get("Room_code")
+#     print("code_sess in userinroom", code)
+#     return JsonResponse({"code": code}, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])

@@ -7,8 +7,8 @@
     
 //     if (!expectedError) {
 //         console.log("Logging the error",error);
-//         // toast.error("An Unexpected Error Occured");
-//         toast("An Unexpected Error Occured"); // alternate for alert
+//         toast.error("An Unexpected Error Occured");
+//         // toast("An Unexpected Error Occured"); // alternate for alert
 //     }
 
 //     return Promise.reject(error);
