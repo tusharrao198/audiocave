@@ -21,7 +21,9 @@ class App extends Component {
   };
 
   async componentDidMount() {
+    console.log("Mat BOL ");
     const { data } = await axios.get(`/api/userinroom/`);
+    console.log("AB BOL NA ");
     this.setState({ roomCode: data.code });
     console.log("ASYNC APP>JS ROOOOM", this.state.roomCode);
   }
@@ -33,16 +35,18 @@ class App extends Component {
       alert("Session found!");
       return <Redirect to={`/room/${this.state.roomCode}`} />;
     } else {
-      console.log("NNNNNNNNNNNnnn");
-      return <Redirect to={"/homepage"} />;
+      console.log("IS NULL");
+      // return <Redirect to="/" />;
+      return <Homepage />;
     }
   };
   //
-  // clearRoomCode() {
-  //   this.setState({
-  //     roomCode: null,
-  //   });
-  // }
+  clearRoomCode = (code_) => {
+    console.log("leaveRoomCallback data came was ", code_);
+    this.setState({
+      roomCode: code_,
+    });
+  };
 
   render() {
     return (
@@ -54,7 +58,14 @@ class App extends Component {
             <Route exact path="/homepage" render={this.handleredirectSession} />
             <Route path="/joinroom" exact component={JoinRoom} />
             <Route path="/createroom" exact component={CreateRoom} />
-            <Route path="/room/:roomCode" exact component={Room} />
+            <Route
+              path="/room/:roomCode"
+              render={(props) => {
+                return (
+                  <Room {...props} leaveRoomCallback={this.clearRoomCode} />
+                );
+              }}
+            />
             <Route path="/notfound" exact component={NotFound} />
             <Redirect from="/" to="/homepage" />
             <Redirect to="/notfound" />

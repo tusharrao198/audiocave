@@ -8,6 +8,7 @@ from .views import (
     JoinRoomView,
     UserinRoomView,
     UserLeaveRoomView,
+    UpdateRoomView
 )
 
 urlpatterns = [
@@ -18,4 +19,6 @@ urlpatterns = [
     path("api/joinroom/", views.JoinRoomView, name="joinroom-api"),
     path("api/userinroom/", views.UserinRoomView, name="userinroom-api"),
     path("api/userleaveroom/", views.UserLeaveRoomView, name="userleaveroom-api"),
+    path("api/updateroom/", UpdateRoomView.as_view(), name="updateroom-api"),
+
 ]
