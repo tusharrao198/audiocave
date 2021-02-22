@@ -26,7 +26,11 @@ class Room extends Component {
     showSettings: false,
   };
 
-  async componentDidMount() {
+  componentDidMount() {
+    this.handleRoomData();
+  }
+
+  handleRoomData = async () => {
     console.log("After condiition from url", this.state.roomCode);
     const { roomCode } = this.state;
     console.log("CODEFROM URL/PARAMS START ", roomCode);
@@ -62,7 +66,7 @@ class Room extends Component {
         toast.error("UNEXPECTED ERROR");
       }
     }
-  }
+  };
 
   handlBackButtonPress = async () => {
     const { data } = await axios.post(config.apiEndpointLeaveRoom);
@@ -97,7 +101,7 @@ class Room extends Component {
             votes_count_to_skip={this.state.votes_count_to_skip}
             guest_can_pause={this.state.guest_can_pause}
             roomCode={this.state.roomCode}
-            updateCallback={() => {}}
+            updateCallback={this.handleRoomData}
           />
         </Grid>
         <Grid item xs={12} align="center">

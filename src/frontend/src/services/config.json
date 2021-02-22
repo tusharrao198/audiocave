@@ -1,8 +1,8 @@
 {
-    "apiEndpointgetRoom": "/api/getroom/",
-    "apiEndpointJoinRoom" : "/api/joinroom/",
-    "gotoRoom" : "/room/",
-    "apiEndpointCreateRoom": "/api/createroom/",
-    "apiEndpointLeaveRoom" : "/api/userleaveroom/"
-
+  "apiEndpointgetRoom": "/api/getroom/",
+  "apiEndpointJoinRoom": "/api/joinroom/",
+  "gotoRoom": "/room/",
+  "apiEndpointCreateRoom": "/api/createroom/",
+  "apiEndpointLeaveRoom": "/api/userleaveroom/",
+  "apiEndpointUpdateRoom": "/api/updateroom/"
 }
