@@ -4,5 +4,6 @@
   "gotoRoom": "/room/",
   "apiEndpointCreateRoom": "/api/createroom/",
   "apiEndpointLeaveRoom": "/api/userleaveroom/",
-  "apiEndpointUpdateRoom": "/api/updateroom/"
+  "apiEndpointUpdateRoom": "/api/updateroom/",
+  "apiEndpointCurrentSong": "/spotify/currentsong/"
 }

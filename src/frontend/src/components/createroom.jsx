@@ -126,7 +126,7 @@ class CreateRoom extends Component {
 
   render() {
     const { guest_can_pause, votes_count_to_skip, update } = this.state;
-    const title = update ? "Update Room" : "Create Room";
+    const title = update ? "Update Room Settings" : "Create Room";
     return (
       <Grid container spacing={1}>
         <Grid item xs={12} align="center">

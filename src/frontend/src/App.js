@@ -12,8 +12,8 @@ import NotFound from "./components/notfound";
 import Navbar from "./components/navbar";
 import Homepage from "./components/homepage";
 // import {withRouter} from 'react-router-dom';
-import { confirmAlert } from "react-confirm-alert";
-import "react-confirm-alert/src/react-confirm-alert.css";
+// import { confirmAlert } from "react-confirm-alert";
+// import "react-confirm-alert/src/react-confirm-alert.css";
 
 class App extends Component {
   state = {

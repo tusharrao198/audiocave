@@ -15,6 +15,7 @@ import {
   FormControlLabel,
 } from "@material-ui/core";
 import CreateRoom from "./createroom";
+import { Redirect, Route, Switch, Link } from "react-router-dom";
 
 class Room extends Component {
   state = {
@@ -24,6 +25,7 @@ class Room extends Component {
     roomCode: this.props.match.params.roomCode, // getting from url
     // code: null, // will be updated from code
     showSettings: false,
+    spotifyAuthenticated: false,
   };
 
   componentDidMount() {
@@ -49,6 +51,9 @@ class Room extends Component {
           isHost: data.ishost,
           roomCode: data.RoomCodeinSession,
         });
+        if (this.state.isHost) {
+          this.handleisSpotifyAuthenticated();
+        }
       } else {
         console.log("E1");
         this.props.history.replace("/");
@@ -68,21 +73,41 @@ class Room extends Component {
     }
   };
 
+  handleauthenticateUser = async () => {
+    console.log("AAAYAYAYAYAYYAYAYAYAY");
+    const { data } = await axios.get(
+      `http://127.0.0.1:8000/spotify/get-auth-url/`
+    );
+    console.log("handleauthenticateUser", data, "and data url,= ", data.url);
+    window.location.replace(data.url);
+    // <Redirect to={data_.url} />;
+  };
+
+  handleisSpotifyAuthenticated = async () => {
+    const { data } = await axios.get(
+      `http://127.0.0.1:8000/spotify/is_Authenticated/`
+    );
+    console.log("DATa handleisSpotifyAuthenticated", data);
+    this.setState({ spotifyAuthenticated: data.Status });
+    if (!data.Status) {
+      console.log("data.Status", data.Status, "Authenticating");
+      this.handleauthenticateUser();
+      toast.success("User Authenticated with Spotify");
+      console.log("User Authenticated with Spotify");
+    }
+    console.log("User Authenticated with Spotify");
+  };
+
   handlBackButtonPress = async () => {
     const { data } = await axios.post(config.apiEndpointLeaveRoom);
     console.log("LEAVE ROOM", data);
     this.props.leaveRoomCallback(null);
     this.props.history.replace("/");
-    // catch (ex) {
-    //   if (
-    //     (ex.response && ex.response.status === 404) ||
-    //     ex.response.status === 400
-    //   ) {
-    //     toast.error("INVALID ROOM ID");
-    //   } else {
-    //     toast.error("UNEXPECTED ERROR");
-    //   }
-    // }
+  };
+
+  handleisgetCurrentSong = async () => {
+    console.log("Current SOng Called");
+    const { data } = await axios.get(config.apiEndpointCurrentSong);
   };
 
   handleShowSettingsUpdate = (value) => {

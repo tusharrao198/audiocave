@@ -4,7 +4,6 @@ from django.db import models
 from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView
 from .models import Room
 from .serializers import RoomSerializer, CreateRoomSerializer, UpdateRoomSerializer
-from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -52,13 +51,13 @@ class CreateRoomView(CreateAPIView):
 
 class UpdateRoomView(UpdateAPIView):
     serializer_class = UpdateRoomSerializer
-    print("UpdateRoomView called")
+    # print("UpdateRoomView called")
     def patch(self, request, format=None):
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
             print("session created in UpdateRoomView")
 
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.serializer_class(data=request.data)  # getting data from post request made on the endpoint
         print(f"UpdateRoomView = {serializer}")
         if serializer.is_valid():
             guest_can_pause = serializer.data.get('guest_can_pause')
@@ -136,7 +135,7 @@ def UserinRoomView(request):
 
 
 @api_view(["GET"])
-def GetRoomView(request, code):
+def GetRoomView(request, code): # this core parameter coming from url
     print(f"session_key={request.session.session_key}")
     if request.session.get("Room_code") == code:
         print("YES WORKING")
@@ -149,8 +148,3 @@ def GetRoomView(request, code):
             return Response(data, status=status.HTTP_200_OK)
     print("ROOM NOT FOUND IN GETROOMVIEW")
     return Response({"BAD REQUEST": "ROOM LEFT BY USER"},status=status.HTTP_404_NOT_FOUND)
-
-# inthis getroom view function we are getting room code from url in this function and in react also.
-# so what we need to do is we need to check that the user have that roomcode added in his session. If both matches in this function above
-# then we will send the code as json response and we will get this code in react using api and setting rooomcode state.
-# resolved above 3lines not used now. didn't worked
