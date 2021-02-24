@@ -19,17 +19,23 @@ import SkipNextIcon from "@material-ui/icons/SkipNext";
 class MusicPlayer extends Component {
   state = {};
 
-  handlePauseSong() {
+  handlePauseSong = async () => {
     console.log("handlePauseSong called");
-    axios.put("http://127.0.0.1:8000/spotify/pausesong/");
-    // console.log("PAUSE PUT ", data);
-  }
+    const promise = await axios.put("http://127.0.0.1:8000/spotify/pausesong/");
+    console.log("PAUSE PUT ", promise);
+  };
 
-  handlePlaySong() {
+  handlePlaySong = async () => {
     console.log("handlePlayeSong called");
-    axios.put("http://127.0.0.1:8000/spotify/playsong/");
-    // console.log("Play PUT ", data);
-  }
+    const promise = await axios.put("http://127.0.0.1:8000/spotify/playsong/");
+    console.log("Play PUT ", promise);
+  };
+
+  handleSkipSong = async () => {
+    console.log("handleSkipSong called");
+    const promise = await axios.post("http://127.0.0.1:8000/spotify/skipsong/");
+    console.log("SKip POST ", promise);
+  };
 
   render() {
     const songProgress = (this.props.progress / this.props.duration) * 100;
@@ -57,8 +63,13 @@ class MusicPlayer extends Component {
               >
                 {this.props.is_playing ? <PauseIcon /> : <PlayArrowIcon />}
               </IconButton>
-              <IconButton>
+              <IconButton
+                onClick={() => {
+                  this.handleSkipSong();
+                }}
+              >
                 <SkipNextIcon />
+                {"  "} {this.props.votes} / {this.props.votes_required}
               </IconButton>
             </div>
           </Grid>

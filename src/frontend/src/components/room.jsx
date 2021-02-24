@@ -34,7 +34,7 @@ class Room extends Component {
     this.handleRoomData();
     // console.log("componentDidMount called");
     this.interval = setInterval(this.handlegetCurrentSong, 1000);
-    this.interval1 = setInterval(this.room, 1000);
+    this.interval1 = setInterval(this.room, 500);
   }
 
   room = async () => {
@@ -42,8 +42,13 @@ class Room extends Component {
       const { data } = await axios.get(
         config.apiEndpointgetRoom + `${this.state.roomCode}`
       );
+      this.setState({
+        guest_can_pause: data.guest_can_pause,
+        votes_count_to_skip: data.votes_count_to_skip,
+        isHost: data.ishost,
+      });
     } catch (ex) {
-      // toast.error("ReCTED TO HOMEPAGE");
+      toast.error("REDIRECTING TO HOMEPAGE");
       this.setState({ roomCode: null });
       // console.log("ROOM CODE = ", this.state.roomCode);
     }
@@ -54,14 +59,9 @@ class Room extends Component {
       // console.log("pokemons state has changed.");
       // toast.error("ERROR");
       alert("ROOM DELETED BY HOST , LEAVE ROOM");
+      // toast.primary("Redirected to Homepage");
       window.location.reload();
     }
-  }
-
-  componentWillUnmount() {
-    // console.log("componentWillUnmount called");
-    clearInterval(this.interval);
-    clearInterval(this.interval1);
   }
 
   handleRoomData = async () => {
@@ -113,6 +113,7 @@ class Room extends Component {
       `http://127.0.0.1:8000/spotify/get-auth-url/`
     );
     // console.log("handleauthenticateUser", data, "and data url,= ", data.url);
+    toast.success("User Authenticated with Spotify");
     window.location.replace(data.url);
     // <Redirect to={data_.url} />;
   };
@@ -126,7 +127,6 @@ class Room extends Component {
     if (!data.Status) {
       // console.log("data.Status", data.Status, "Authenticating");
       this.handleauthenticateUser();
-      toast.success("User Authenticated with Spotify");
       // console.log("User Authenticated with Spotify");
     }
     // console.log("User Authenticated with Spotify");
@@ -140,15 +140,14 @@ class Room extends Component {
   };
 
   handlegetCurrentSong = async () => {
-    console.log("Current Song Called");
+    // console.log("Current Song Called");
     const { data } = await axios.get(
       `http://127.0.0.1:8000${config.apiEndpointCurrentSong}`
     );
-    console.log("Received Current Song-info", data);
-    if (data.is_playing) {
-      this.setState({ song_info: data });
-      console.log("Current Song_info Added");
-    }
+    // console.log("Received Current Song-info", data);
+    this.setState({ song_info: data });
+    // console.log("Current Song_info Added");
+    // }
     // else {
     //   console.log("Current Song_info not received");
     // }
@@ -262,6 +261,13 @@ class Room extends Component {
       //   </button>
       // </div>
     );
+  }
+
+  componentWillUnmount() {
+    console.log("componentWillUnmount called");
+    clearInterval(this.interval);
+    clearInterval(this.interval1);
+    console.log("componentWillUnmount called done");
   }
 }
 

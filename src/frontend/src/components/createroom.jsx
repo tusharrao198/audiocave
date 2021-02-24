@@ -86,6 +86,8 @@ class CreateRoom extends Component {
       // console.log("Update data = ", data);
       toast.success("Settings Updated Successfully");
       this.props.updateCallback();
+    } else {
+      toast.error("Error Updating Room Details");
     }
   };
 
@@ -141,7 +143,7 @@ class CreateRoom extends Component {
             </FormHelperText>
             <RadioGroup
               row
-              defaultValue="true"
+              defaultValue={this.props.guest_can_pause.toString()}
               onChange={this.handleGuestCanPauseChange}
             >
               <FormControlLabel

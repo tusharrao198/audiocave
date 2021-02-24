@@ -6,7 +6,7 @@ from requests import Request, post
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from spotifyapi.models import Spotifytoken
+from spotifyapi.models import Spotifytoken, Votecount
 from .utils import update_or_create_user_tokens, check_spotify_athenticated, execute_SpotifyAPIrequest
 from music_room.models import Room
 import requests
@@ -65,15 +65,6 @@ def is_Authenticated(request):
     is_authenticated = check_spotify_athenticated(request.session.session_key)
     return Response({"Status":is_authenticated} , status=status.HTTP_200_OK)
 
-def play_Song(session_key):
-    # print("playsong called",session_key)
-    endpoint = "player/play"
-    return execute_SpotifyAPIrequest(session_key, endpoint , put_=True)
-
-def pause_Song(session_key):
-    # print("pause song called",session_key)
-    endpoint = "player/pause"
-    return execute_SpotifyAPIrequest(session_key, endpoint , put_=True)
 
 @api_view(["GET"])
 def getCurrentSong(request):
@@ -98,6 +89,7 @@ def getCurrentSong(request):
     try:
         response = execute_SpotifyAPIrequest(hostid, endpoint)
         item = response['item']
+        votes = Votecount.objects.filter(room=room, song_id=item['id'])
         song_info = {
             # "device_id": device_id,
             "artist_name": item['album']['artists'][0]['name'],
@@ -110,13 +102,33 @@ def getCurrentSong(request):
             "song_name": item['name'],
             "type": item['type'],
             "is_playing": response['is_playing'],
-            "vote": 0,
+            "vote": len(votes),
+            "votes_required": room.votes_count_to_skip,
         }
+        if room.current_song != song_info['song_id']:
+            room.current_song = song_info['song_id']
+            room.save(update_fields=["current_song"])
+            votes = Votecount.objects.filter(room=room.code).delete()
+
         # print(f"\n\n\nsong_info={song_info}\n\n\n")
         return Response(song_info, status=status.HTTP_200_OK)
     except:
         return Response({}, status=status.HTTP_404_NOT_FOUND)
 
+def play_Song(session_key):
+    # print("playsong called",session_key)
+    endpoint = "player/play"
+    return execute_SpotifyAPIrequest(session_key, endpoint , put_=True)
+
+def pause_Song(session_key):
+    # print("pause song called",session_key)
+    endpoint = "player/pause"
+    return execute_SpotifyAPIrequest(session_key, endpoint , put_=True)
+
+def skip_Song(session_key):
+    # print("skip song called",session_key)
+    endpoint = "player/next"
+    return execute_SpotifyAPIrequest(session_key, endpoint , post_=True)
 
 @api_view(["PUT"])
 def pauseSong(request):
@@ -135,6 +147,26 @@ def playSong(request):
         play_Song(room.host)
         return Response({}, status=status.HTTP_204_NO_CONTENT)
     return Response({}, status=status.HTTP_403_FORBIDDEN)
+
+@api_view(["POST"])
+def skipSong(request):
+    roomCode = request.session.get('Room_code')
+    room = Room.objects.filter(code=roomCode)
+    if room.exists():
+        room=room[0]
+        votes = Votecount.objects.filter(room=room.code, song_id=room.current_song)
+        votes_needed = room.votes_count_to_skip
+        if request.session.session_key == room.host or len(votes) +1 >= votes_needed:
+            votes.delete()
+            skip_Song(room.host)
+        else:
+            vote = Votecount(
+                user_id = request.session.session_key,
+                room=room.code, song_id=room.current_song
+            )
+            vote.save()
+        return Response({}, status=status.HTTP_204_NO_CONTENT)
+
 
 
 

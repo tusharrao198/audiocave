@@ -140,11 +140,11 @@ def UserinRoomView(request):
 
 @api_view(["GET"])
 def GetRoomView(request, code): # this core parameter coming from url
-    print(f"session_key={request.session.session_key}")
+    # print(f"session_key={request.session.session_key}")
     if request.session.get("Room_code") == code:
-        print("YES WORKING")
+        # print("YES WORKING")
         queryset = Room.objects.filter(code=code)
-        print("\n\nquery",queryset,"\n\n")
+        # print("\n\nquery",queryset,"\n\n")
         if queryset.exists():
             data = RoomSerializer(queryset[0]).data
             data["RoomCodeinSession"] = code
@@ -152,8 +152,8 @@ def GetRoomView(request, code): # this core parameter coming from url
             serializer = RoomSerializer(queryset, many=True)
             return Response(data, status=status.HTTP_200_OK)
         else:
-            print("ELSE POP", request.session.pop("Room_code"))
-            print("Deleting Session")
+            # print("ELSE POP", request.session.pop("Room_code"))
+            # print("Deleting Session")
             request.session.delete()
     print("ROOM NOT FOUND IN GETROOMVIEW")
     # return redirect('http://127.0.0.1:8000/homepage/')

@@ -21,22 +21,22 @@ class App extends Component {
   };
 
   async componentDidMount() {
-    console.log("Mat BOL ");
+    // console.log("Mat BOL ");
     const { data } = await axios.get(`/api/userinroom/`);
-    console.log("AB BOL NA ");
+    // console.log("AB BOL NA ");
     this.setState({ roomCode: data.code });
     const { roomCode } = this.state;
-    console.log("ASYNC APP>JS ROOOOM", roomCode);
+    // console.log("ASYNC APP>JS ROOOOM", roomCode);
   }
 
   handleredirectSession = () => {
-    console.log("ROOMCODE::::::", this.state.roomCode);
+    // console.log("ROOMCODE::::::", this.state.roomCode);
     if (this.state.roomCode !== null) {
-      console.log("SSSSSSS");
+      // console.log("SSSSSSS");
       alert("Session found!");
       return <Redirect to={`/room/${this.state.roomCode}`} />;
     } else {
-      console.log("IS NULL");
+      // console.log("IS NULL");
       // this.setState({ roomCode: null });
       return <Homepage />;
     }
