@@ -52,7 +52,7 @@ class CreateRoom extends Component {
   };
 
   handleRoomButtonPressed = async () => {
-    console.log("ROOM BUTTON", this.state);
+    // console.log("ROOM BUTTON", this.state);
     const post_ = {
       votes_count_to_skip: this.state.votes_count_to_skip,
       guest_can_pause: this.state.guest_can_pause,
@@ -61,12 +61,12 @@ class CreateRoom extends Component {
       config.apiEndpointCreateRoom,
       post_
     );
-    console.log("RES", data.code);
+    // console.log("RES", data.code);
     this.props.history.push(`${config.gotoRoom}${data.code}`);
   };
 
   handleUpdateButton = async () => {
-    console.log("handleUpdateButton Called");
+    // console.log("handleUpdateButton Called");
     const {
       roomCodeforUpdation,
       guest_can_pause,
@@ -77,13 +77,13 @@ class CreateRoom extends Component {
       guest_can_pause: guest_can_pause,
       code: roomCodeforUpdation,
     };
-    console.log("Updates", post);
+    // console.log("Updates", post);
     if (this.state.roomCodeforUpdation !== null) {
       const { data } = await axios.patch(
         `${config.apiEndpointUpdateRoom}`,
         post
       );
-      console.log("Update data = ", data);
+      // console.log("Update data = ", data);
       toast.success("Settings Updated Successfully");
       this.props.updateCallback();
     }

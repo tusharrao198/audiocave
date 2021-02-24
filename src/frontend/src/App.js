@@ -25,7 +25,8 @@ class App extends Component {
     const { data } = await axios.get(`/api/userinroom/`);
     console.log("AB BOL NA ");
     this.setState({ roomCode: data.code });
-    console.log("ASYNC APP>JS ROOOOM", this.state.roomCode);
+    const { roomCode } = this.state;
+    console.log("ASYNC APP>JS ROOOOM", roomCode);
   }
 
   handleredirectSession = () => {
@@ -36,7 +37,7 @@ class App extends Component {
       return <Redirect to={`/room/${this.state.roomCode}`} />;
     } else {
       console.log("IS NULL");
-      // return <Redirect to="/" />;
+      // this.setState({ roomCode: null });
       return <Homepage />;
     }
   };

@@ -15,6 +15,7 @@ def generate_room_code():
 class Room(models.Model):
     code = models.CharField(default=generate_room_code, max_length=50, unique=True)
     host = models.CharField(unique=True, max_length=50)
+    ishost = models.BooleanField(default=False)
     guest_can_pause = models.BooleanField(null=False, default=False)
     votes_count_to_skip = models.IntegerField(null=False, default=1)
     time_created = models.DateTimeField(auto_now_add=True)

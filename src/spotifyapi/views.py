@@ -21,7 +21,7 @@ def AuthURL(request):
         'client_id': config("CLIENT_ID"),
         'redirect_uri': config("REDIRECT_URI"),
     }).prepare().url
-    print(F"GET url ={url} ")
+    # print(F"GET url ={url} ")
     return Response({"url":url}, status=status.HTTP_200_OK)
 
 # spotify_callback
@@ -29,8 +29,8 @@ def Spotify_Callback(request, format=None):
     print("Spotify_Callback called")
     code = request.GET.get('code')
     error  = request.GET.get("error")
-    print(f"spotify_callback code ={code} ")
-    print(f"Checking redirect uri= {config('REDIRECT_URI')}")
+    # print(f"spotify_callback code ={code} ")
+    # print(f"Checking redirect uri= {config('REDIRECT_URI')}")
     # sending request to get access_token
     response = post('https://accounts.spotify.com/api/token', data={
      'grant_type':"authorization_code",
@@ -50,7 +50,7 @@ def Spotify_Callback(request, format=None):
     # print(f'token_type ={response.get("token_type")}\n')
     # print(f'expires_in ={response.get("expires_in")}\n')
     if not request.session.exists(request.session.session_key):
-        print("# if not then we create")
+        # print("# if not then we create")
         request.session.create()
     update_or_create_user_tokens(request.session.session_key, access_token, token_type, expires_in, refresh_token)
 
@@ -61,9 +61,19 @@ def Spotify_Callback(request, format=None):
 
 @api_view(["GET"])
 def is_Authenticated(request):
-    print("isAuthenticated Called")
+    # print("isAuthenticated Called")
     is_authenticated = check_spotify_athenticated(request.session.session_key)
     return Response({"Status":is_authenticated} , status=status.HTTP_200_OK)
+
+def play_Song(session_key):
+    # print("playsong called",session_key)
+    endpoint = "player/play"
+    return execute_SpotifyAPIrequest(session_key, endpoint , put_=True)
+
+def pause_Song(session_key):
+    # print("pause song called",session_key)
+    endpoint = "player/pause"
+    return execute_SpotifyAPIrequest(session_key, endpoint , put_=True)
 
 @api_view(["GET"])
 def getCurrentSong(request):
@@ -76,32 +86,55 @@ def getCurrentSong(request):
 
     hostid = room.host
     endpoint = 'player/currently-playing'
-    if room.host == request.session.session_key:   # when host is accessing
-        print("# when host is accessing getCurrentSong")
+    # if room.host == request.session.session_key:   # when host is accessing
+    #     # print("# when host is accessing getCurrentSong")
+    #     # response = execute_SpotifyAPIrequest(hostid, endpoint)
+    #     response = execute_SpotifyAPIrequest(hostid, endpoint)
+    #     if 'error' in response or 'item' not in response:
+    #         return Response({"No Content": "Nothing Is playing"}, status=status.HTTP_204_NO_CONTENT)
+    # else:
+    #     # print("ACCESSED BY USER OF THE ROOM NOT THE HOST")
+    # device_id = execute_SpotifyAPIrequest(hostid)['id']
+    try:
         response = execute_SpotifyAPIrequest(hostid, endpoint)
-        if 'error' in response or 'item' not in response:
-            return Response({"No Content": "Nothing Is playing"}, status=status.HTTP_204_NO_CONTENT)
-    else:
-        print("ACCESSED BY USER OF THE ROOM NOT THE HOST")
-        response = execute_SpotifyAPIrequest(hostid, endpoint)
-
-    item = response['item']
-    song_info = {
-        "artist_name": item['album']['artists'][0]['name'],
-        "artist_uri": item['album']['artists'][0]['uri'],
-        "images": item['album']["images"][-1],
-        "song_uri": item['album']['uri'],
-        "song_name": item['album']['name'],
-        "type": item['type'],
-        "is_playing": response['is_playing'],
-        "pause": response['actions']['disallows']['pausing'],
-    }
-    print(f"\n\n\nsong_info={song_info}\n\n\n")
-    return Response(song_info, status=status.HTTP_200_OK)
-
-
+        item = response['item']
+        song_info = {
+            # "device_id": device_id,
+            "artist_name": item['album']['artists'][0]['name'],
+            "artist_uri": item['album']['artists'][0]['uri'],
+            "image_url": item['album']["images"][0]['url'],
+            "progress": response['progress_ms'],
+            "duration": item["duration_ms"],
+            "song_uri": item['uri'],
+            "song_id":item['id'],
+            "song_name": item['name'],
+            "type": item['type'],
+            "is_playing": response['is_playing'],
+            "vote": 0,
+        }
+        # print(f"\n\n\nsong_info={song_info}\n\n\n")
+        return Response(song_info, status=status.HTTP_200_OK)
+    except:
+        return Response({}, status=status.HTTP_404_NOT_FOUND)
 
 
+@api_view(["PUT"])
+def pauseSong(request):
+    roomCode = request.session.get('Room_code')
+    room = Room.objects.filter(code=roomCode)[0]
+    if request.session.session_key == room.host or room.guest_can_pause:
+        pause_Song(room.host)
+        return Response({}, status=status.HTTP_204_NO_CONTENT)
+    return Response({}, status=status.HTTP_403_FORBIDDEN)
+
+@api_view(["PUT"])
+def playSong(request):
+    roomCode = request.session.get('Room_code')
+    room = Room.objects.filter(code=roomCode)[0]
+    if request.session.session_key == room.host or room.guest_can_pause:
+        play_Song(room.host)
+        return Response({}, status=status.HTTP_204_NO_CONTENT)
+    return Response({}, status=status.HTTP_403_FORBIDDEN)
 
 
 

@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 # from django.http import HttpResponse
 from django.db import models
 from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView
@@ -30,17 +30,20 @@ class CreateRoomView(CreateAPIView):
         if serializer.is_valid():
             guest_can_pause = serializer.data.get("guest_can_pause")
             votes_count_to_skip = serializer.data.get("votes_count_to_skip")
+            ishost = True
             host = self.request.session.session_key
             queryset = Room.objects.filter(host=host)
             if queryset.exists():
                 room = queryset[0]
                 room.guest_can_pause = guest_can_pause
                 room.votes_count_to_skip = votes_count_to_skip
-                room.save(update_fields=["guest_can_pause", "votes_count_to_skip"])
+                room.ishost = ishost
+                room.save(update_fields=["guest_can_pause", "votes_count_to_skip", "ishost"])
                 request.session["Room_code"] = room.code
             else:
                 room = Room(
                     host=host,
+                    ishost=ishost,
                     guest_can_pause=guest_can_pause,
                     votes_count_to_skip=votes_count_to_skip,
                 )
@@ -60,7 +63,7 @@ class UpdateRoomView(UpdateAPIView):
         serializer = self.serializer_class(data=request.data)  # getting data from post request made on the endpoint
         print(f"UpdateRoomView = {serializer}")
         if serializer.is_valid():
-            guest_can_pause = serializer.data.get('guest_can_pause')
+            guest_can_pause = serializer.data.get('guest_can_pause') # getting data from api view
             votes_count_to_skip = serializer.data.get('votes_count_to_skip')
             code = serializer.data.get('code')
             print(f"guest={guest_can_pause}, votes={votes_count_to_skip}, code={code} ---in UpdateRoomView")
@@ -130,7 +133,8 @@ def UserinRoomView(request):
         request.session.create()
         print("CREATING IN USERIN ROOM VIEW")
     code = request.session.get("Room_code")
-    print("code_sess in userinroom", code)
+    print(f"Userinroom view called and code= {code}")
+    queryset = Room.objects.filter(code=code)
     return JsonResponse({"code": code}, status=status.HTTP_200_OK)
 
 
@@ -140,11 +144,17 @@ def GetRoomView(request, code): # this core parameter coming from url
     if request.session.get("Room_code") == code:
         print("YES WORKING")
         queryset = Room.objects.filter(code=code)
-        if queryset is not None:
+        print("\n\nquery",queryset,"\n\n")
+        if queryset.exists():
             data = RoomSerializer(queryset[0]).data
             data["RoomCodeinSession"] = code
-            data["ishost"] = request.session.session_key == queryset[0].host
+            data["ishost"] = request.session.session_key == queryset[0].host # added extra field to send data to react
             serializer = RoomSerializer(queryset, many=True)
             return Response(data, status=status.HTTP_200_OK)
+        else:
+            print("ELSE POP", request.session.pop("Room_code"))
+            print("Deleting Session")
+            request.session.delete()
     print("ROOM NOT FOUND IN GETROOMVIEW")
+    # return redirect('http://127.0.0.1:8000/homepage/')
     return Response({"BAD REQUEST": "ROOM LEFT BY USER"},status=status.HTTP_404_NOT_FOUND)
