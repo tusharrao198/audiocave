@@ -38,14 +38,17 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    "channels",
     "music_room.apps.MusicRoomConfig",
     "spotifyapi.apps.SpotifyapiConfig",
     "youtubeapi.apps.YoutubeapiConfig",
+    "chatroom.apps.ChatroomConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "django.contrib.sites",
     "django.contrib.staticfiles",
     "django_extensions",
     "ckeditor",
@@ -66,6 +69,17 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "web_main.urls"
+
+ASGI_APPLICATION = "web_main.asgi.application"
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
+
 
 TEMPLATE_DIR = os.path.join(BASE_DIR, "music_room", "templates", "music_room/")
 
@@ -90,7 +104,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "web_main.wsgi.application"
+# WSGI_APPLICATION = "web_main.wsgi.application"
 
 
 # Database
