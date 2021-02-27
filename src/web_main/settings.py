@@ -40,6 +40,7 @@ ALLOWED_HOSTS = ["*"]
 INSTALLED_APPS = [
     "music_room.apps.MusicRoomConfig",
     "spotifyapi.apps.SpotifyapiConfig",
+    "youtubeapi.apps.YoutubeapiConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

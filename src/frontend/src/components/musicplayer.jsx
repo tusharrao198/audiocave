@@ -16,66 +16,113 @@ import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import PauseIcon from "@material-ui/icons/Pause";
 import SkipNextIcon from "@material-ui/icons/SkipNext";
 
+
 class MusicPlayer extends Component {
-  state = {};
 
-  handlePauseSong = async () => {
-    console.log("handlePauseSong called");
-    const promise = await axios.put("http://127.0.0.1:8000/spotify/pausesong/");
-    console.log("PAUSE PUT ", promise);
+  state = {
+    roomCode : this.props.roomCode,
+    is_playing : false,
   };
 
-  handlePlaySong = async () => {
-    console.log("handlePlayeSong called");
-    const promise = await axios.put("http://127.0.0.1:8000/spotify/playsong/");
-    console.log("Play PUT ", promise);
+  // componentDidUpdate(prevProps, prevState) {
+  //   if (prevState.is_playing !== this.props.play) {
+  //     // console.log("playing state has changed.");
+  //     toast.error("playing state has changed ", this.state.is_playing);
+  //     this.setState({is_playing: this.props.play})
+  //     // console.log("in did update ", document.getElementById('audio'));
+  //     if (this.props.isHost || this.props.guest_can_pause){
+  //       this.state.is_playing? document.getElementById('audio').play() :
+  //     document.getElementById('audio').pause();
+  //     } else {
+  //       this.state.is_playing? document.getElementById('audio').play() :
+  //       document.getElementById('audio').pause();
+  //     }
+  //   }
+  // }
+
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.is_playing !== this.props.play) {
+      // console.log("playing state has changed.");
+      toast.error("playing state has changed ", this.state.is_playing);
+      this.setState({is_playing: this.props.play})
+      // console.log("in did update ", document.getElementById('audio'));
+      this.state.is_playing? document.getElementById('audio').play() :
+      document.getElementById('audio').pause();
+    }
+  }
+
+
+
+  handleButton =() => {
+    let myAudio = document.getElementById('audio');
+    if (myAudio.paused) {
+      // console.log("/ false to true")
+      this.handleplaypauseUpdateButton(true);
+    }else { 
+      // console.log("// true to false")
+      this.handleplaypauseUpdateButton(false);
+    }    
+  }
+
+
+  handleplaypauseUpdateButton = async (value) => {
+    // console.log("handleplaypauseUpdateButton Called");
+
+    const post = {
+      is_playing: value,
+      roomCode: this.state.roomCode,
+    };
+
+    try {
+      console.log("Sending Updates", post);
+      const { data } = await axios.patch("http://127.0.0.1:8000/youtube/update/", post);
+      // toast.success(`Song ${this.state.is_playing}ed for user`); 
+    }catch(ex) {
+      toast.error("Error Updating Room Details");
+    }
   };
 
-  handleSkipSong = async () => {
-    console.log("handleSkipSong called");
-    const promise = await axios.post("http://127.0.0.1:8000/spotify/skipsong/");
-    console.log("SKip POST ", promise);
-  };
+  handledisablebutton = () => {
+    if (this.props.isHost || this.props.guest_can_pause){
+      document.getElementById("submit_button").disabled = false;
+      this.handleButton();
+    }else {
+      document.getElementById("submit_button").disabled = true;
+      toast.warning("DENIED ACCESS")
+      setTimeout(() => document.getElementById("submit_button").disabled = false , 5000);
+    }
+  }
 
   render() {
-    const songProgress = (this.props.progress / this.props.duration) * 100;
+    // const {guest_can_pause, isHost} = this.props;
+    // if (guest_can_pause || isHost) {
+      
+    // }
 
     return (
-      <Card container alignItems="center">
-        <Grid container alignItems="center">
-          <Grid item align="center" xs={4}>
-            <img src={this.props.image_url} height="100%" width="100%" />
-          </Grid>
-          <Grid item align="center" xs={8}>
-            <Typography component="h5" variant="h5">
-              {this.props.title}
-            </Typography>
-            <Typography color="textSecondary" variant="subtitle1">
-              {this.props.artist_name}
-            </Typography>
-            <div>
-              <IconButton
-                onClick={() => {
-                  this.props.is_playing
-                    ? this.handlePauseSong()
-                    : this.handlePlaySong();
-                }}
-              >
-                {this.props.is_playing ? <PauseIcon /> : <PlayArrowIcon />}
-              </IconButton>
-              <IconButton
-                onClick={() => {
-                  this.handleSkipSong();
-                }}
-              >
-                <SkipNextIcon />
-                {"  "} {this.props.votes} / {this.props.votes_required}
-              </IconButton>
-            </div>
-          </Grid>
-        </Grid>
-        <LinearProgress variant="determinate" value={songProgress} />
-      </Card>
+      <div className="container justify-content-center">
+        <h1>{this.props.song_name}</h1>
+        <h4>is_playing = {this.props.play.toString()}</h4>
+        <div>
+          <img src={this.props.image_url} />
+          <p>Artist : {this.props.artist}</p>
+          <audio controls
+              id='audio'
+              src={this.props.song_url}
+              border="0"
+              width="100%"
+              height="60"
+              autostart="false"
+              loop="false"
+          ></audio>
+        </div>
+        <button id="submit_button" className= "btn btn-success btn-sm" onClick={this.handledisablebutton}>BUTTON = {" "} {this.props.play.toString()}</button>
+        <p>
+          <bold>Votes:</bold>
+          {this.props.votes} / {this.props.votes_required}
+        </p>
+      </div>
     );
   }
 }

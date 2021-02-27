@@ -14,7 +14,7 @@ import requests
 
 @api_view(["GET"])
 def AuthURL(request):
-    scopes = "user-read-playback-state user-modify-playback-state user-read-currently-playing"
+    scopes = ["user-read-playback-state", 'user-modify-playback-state', 'user-read-currently-playing','streaming', 'user-read-email', 'user-read-private']
     url = Request('GET', "https://accounts.spotify.com/authorize", params={
         'scope': scopes,
         'response_type': 'code',
@@ -85,13 +85,13 @@ def getCurrentSong(request):
     #         return Response({"No Content": "Nothing Is playing"}, status=status.HTTP_204_NO_CONTENT)
     # else:
     #     # print("ACCESSED BY USER OF THE ROOM NOT THE HOST")
-    # device_id = execute_SpotifyAPIrequest(hostid)['id']
+    device_id = execute_SpotifyAPIrequest(hostid)['id']
     try:
         response = execute_SpotifyAPIrequest(hostid, endpoint)
         item = response['item']
         votes = Votecount.objects.filter(room=room, song_id=item['id'])
         song_info = {
-            # "device_id": device_id,
+            "device_id": device_id,
             "artist_name": item['album']['artists'][0]['name'],
             "artist_uri": item['album']['artists'][0]['uri'],
             "image_url": item['album']["images"][0]['url'],
@@ -154,7 +154,7 @@ def skipSong(request):
     room = Room.objects.filter(code=roomCode)
     if room.exists():
         room=room[0]
-        votes = Votecount.objects.filter(room=room.code, song_id=room.current_song)
+        votes = Votecount.objects.filter(room=room, song_id=room.current_song)
         votes_needed = room.votes_count_to_skip
         if request.session.session_key == room.host or len(votes) +1 >= votes_needed:
             votes.delete()
@@ -162,7 +162,7 @@ def skipSong(request):
         else:
             vote = Votecount(
                 user_id = request.session.session_key,
-                room=room.code, song_id=room.current_song
+                room=room, song_id=room.current_song
             )
             vote.save()
         return Response({}, status=status.HTTP_204_NO_CONTENT)

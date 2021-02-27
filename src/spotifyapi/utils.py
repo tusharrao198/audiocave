@@ -2,6 +2,7 @@ from spotifyapi.models import Spotifytoken
 from datetime import datetime, timedelta
 from decouple import config
 import requests
+from requests import Request, post
 # from django.utils import timezone
 
 BASE_URL = "https://api.spotify.com/v1/me/"
@@ -92,7 +93,7 @@ def check_spotify_athenticated(session_key):
         return True
     return False
 
-def execute_SpotifyAPIrequest(session_key, endpoint, put_=False, post_=False):
+def execute_SpotifyAPIrequest(session_key, endpoint=False, put_=False, post_=False):
     tokens = get_user_token(session_key)
     # print(f"\n\nAccess token = {tokens.access_token } \n\n")
     spotify_headers = {
@@ -101,7 +102,7 @@ def execute_SpotifyAPIrequest(session_key, endpoint, put_=False, post_=False):
     }
     # print(f"\n\nSpotify headers = {spotify_headers}\n\n")
     if post_:
-        data = requests.post(BASE_URL + endpoint,{}, headers=spotify_headers)
+        data = requests.post(BASE_URL + endpoint, headers=spotify_headers)
         print("POSTING DATA", data)
 
     if put_:
@@ -110,12 +111,15 @@ def execute_SpotifyAPIrequest(session_key, endpoint, put_=False, post_=False):
             "Authorization": f"Bearer {tokens.access_token}",
         }
         # print(f"Sending Put request = {BASE_URL+endpoint}{spotify_headers}")
-        requests.put(BASE_URL+endpoint, {}, headers=spotify_headers)
-        # url = Request('PUT', BASE_URL+endpoint , {},  params=spotify_headers).prepare().url
+        # requests.put(BASE_URL+endpoint, headers=spotify_headers)
+        Request('PUT', BASE_URL+endpoint , {},  params=spotify_headers).prepare().url
         # print("\n\nPUTTING DATA", data)
-    # if endpoint==False:
-    #     response_spotify = requests.get(BASE_URL, headers=spotify_headers)
-    response_spotify = requests.get(BASE_URL+endpoint,{}, headers=spotify_headers)
+    if endpoint==False:
+        response_spotify = requests.get(BASE_URL, {}, headers=spotify_headers)
+    try:
+        response_spotify = requests.get(BASE_URL+endpoint,{}, headers=spotify_headers)
+    except:
+        pass
     # print("responsespotify JSON", response_spotify)
     try:
         # print("SUCCESS CONNECTED SPOTIFY")

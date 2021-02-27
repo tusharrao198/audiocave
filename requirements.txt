@@ -26,3 +26,4 @@ typed-ast==1.4.2
 typing-extensions==3.7.4.3
 urllib3==1.26.3
 whitenoise==5.2.0
+youtube-dl==2021.2.22
