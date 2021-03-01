@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 // import http from '../services/httpservice';
+import { w3cwebsocket as W3CWebSocket } from "websocket";
 import axios from "axios";
 import config from "../services/config.json";
 import { toast } from "react-toastify";
@@ -16,6 +17,7 @@ import {
 } from "@material-ui/core";
 import CreateRoom from "./createroom";
 import MusicPlayer from "./musicplayer";
+import ChatRoom from "./chatroom";
 import { Redirect, Route, Switch, Link } from "react-router-dom";
 
 class Room extends Component {
@@ -34,7 +36,15 @@ class Room extends Component {
     is_playing: false,
   };
 
+  // handleData = () => {
+  //   let client = new W3CWebSocket(
+  //     "ws://127.0.0.1:8000/ws/chat/" + this.state.roomCode + "/"
+  //   );
+  //   console.log("CLIENT", client);
+  // };
+
   async componentDidMount() {
+    // this.handleData();
     this.handleRoomData();
     this.handlegetCurrentSong();
     console.log("componentDidMount called");
@@ -54,7 +64,7 @@ class Room extends Component {
         is_playing: data.is_playing,
       });
       // console.log(
-      //   "IN ROOM CALL INTERVAL " , this.state.is_playing 
+      //   "IN ROOM CALL INTERVAL " , this.state.is_playing
       // )
     } catch (ex) {
       // toast.error("REDIRECTING TO HOMEPAGE");
@@ -64,22 +74,22 @@ class Room extends Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.roomCode !== this.state.roomCode ) {
+    if (prevState.roomCode !== this.state.roomCode) {
       console.log("pokemons state has changed.");
       // toast.error("ERROR");
       alert(`ROOM DELETED BY HOST , LEAVE ROOM !`);
       // toast.error("ROOM DELETED BY HOST");
       window.location.reload();
     }
-    if(prevState.is_playing !== this.state.is_playing){
+    if (prevState.is_playing !== this.state.is_playing) {
       console.log("isPlaying updated by interval ", this.state.is_playing);
     }
   }
 
   handleRoomData = async () => {
-    // console.log("After condiition from url", this.state.roomCode);
+    console.log("After condiition from url", this.state.roomCode);
     const { roomCode } = this.state;
-    // console.log("CODEFROM URL/PARAMS START ", roomCode);
+    console.log("CODEFROM URL/PARAMS START ", roomCode);
     try {
       // console.log("A1");
       if (roomCode !== null) {
@@ -254,16 +264,23 @@ class Room extends Component {
             RoomCode: {roomCode}
           </Typography>
         </Grid>
-        <MusicPlayer  
-          song={this.state.song} 
-          roomCode={this.state.roomCode}
-          play={this.state.is_playing}
-          guest_can_pause={guest_can_pause}
-          isHost={isHost}
-          {...this.state.song_info}
-          updateplayplauseCallback={this.handleRoomData} 
-        />
-
+        <Grid alignItems="center">
+          <MusicPlayer
+            song={this.state.song}
+            roomCode={this.state.roomCode}
+            play={this.state.is_playing}
+            guest_can_pause={guest_can_pause}
+            isHost={isHost}
+            {...this.state.song_info}
+            updateplayplauseCallback={this.handleRoomData}
+          />
+          <Grid item xs={12} align="center">
+            <Typography variant="h6" component="h6">
+              Chat Karlo friends
+            </Typography>
+            <ChatRoom roomCode={roomCode} />
+          </Grid>
+        </Grid>
         <Grid item xs={12} align="center">
           <Typography variant="h6" component="h6">
             Votes: {votes_count_to_skip}
@@ -271,7 +288,7 @@ class Room extends Component {
         </Grid>
         <Grid item xs={12} align="center">
           <Typography variant="h6" component="h6">
-            isplaying:  {is_playing.toString()}
+            isplaying: {is_playing.toString()}
           </Typography>
         </Grid>
         <Grid item xs={12} align="center">

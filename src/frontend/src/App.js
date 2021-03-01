@@ -1,5 +1,20 @@
 import React, { Component } from "react";
 import "./App.css";
+// import {
+//   Button,
+//   CssBaseline,
+//   TextField,
+//   Link,
+//   Grid,
+//   Typography,
+//   Container,
+//   Card,
+//   CardHeader,
+//   Paper,
+//   Avatar,
+// } from "@material-ui/core";
+// import { withStyles } from "@material-ui/core/styles";
+
 import { Redirect, Route, Switch, Link } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -21,7 +36,7 @@ class App extends Component {
   };
 
   async componentDidMount() {
-    // console.log("Mat BOL ");
+    console.log("Mat BOL ");
     const { data } = await axios.get(`/api/userinroom/`);
     // console.log("AB BOL NA ");
     this.setState({ roomCode: data.code });
@@ -48,6 +63,12 @@ class App extends Component {
       roomCode: code_,
     });
   };
+
+  //Websocket integration
+  // let socketPath = {`ws://${window.location.host}/ws/chat/${this.state.roomCode}/`;
+  // const ro = window.location.pathname;
+  // console.log("PATHNAME", ro);
+  // console.log("socketPath", socketPath);
 
   render() {
     return (
