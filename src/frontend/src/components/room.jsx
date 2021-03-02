@@ -4,17 +4,7 @@ import { w3cwebsocket as W3CWebSocket } from "websocket";
 import axios from "axios";
 import config from "../services/config.json";
 import { toast } from "react-toastify";
-import {
-  Button,
-  Grid,
-  Typography,
-  TextField,
-  FormHelperText,
-  FormControl,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
-} from "@material-ui/core";
+import "../index.css";
 import CreateRoom from "./createroom";
 import MusicPlayer from "./musicplayer";
 import ChatRoom from "./chatroom";
@@ -35,13 +25,6 @@ class Room extends Component {
     retrycount: 0,
     is_playing: false,
   };
-
-  // handleData = () => {
-  //   let client = new W3CWebSocket(
-  //     "ws://127.0.0.1:8000/ws/chat/" + this.state.roomCode + "/"
-  //   );
-  //   console.log("CLIENT", client);
-  // };
 
   async componentDidMount() {
     // this.handleData();
@@ -189,10 +172,6 @@ class Room extends Component {
         // toast.error("Already Left | INVALID ROOM ID");
       }
     }
-    // }
-    // else {
-    //   console.log("Current Song_info not received");
-    // }
   };
 
   handleShowSettingsUpdate = (value) => {
@@ -204,8 +183,8 @@ class Room extends Component {
 
   renderSettings() {
     return (
-      <Grid container spacing={1}>
-        <Grid item xs={12} align="center">
+      <div className="container">
+        <div className="container-fluid">
           <CreateRoom
             update={true}
             votes_count_to_skip={this.state.votes_count_to_skip}
@@ -213,31 +192,27 @@ class Room extends Component {
             roomCode={this.state.roomCode}
             updateCallback={this.handleRoomData}
           />
-        </Grid>
-        <Grid item xs={12} align="center">
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={() => this.handleShowSettingsUpdate(false)}
-          >
-            Close
-          </Button>
-        </Grid>
-      </Grid>
+        </div>
+        <button
+          className="btn btn-primary btn-sm"
+          onClick={() => this.handleShowSettingsUpdate(false)}
+        >
+          Close
+        </button>
+      </div>
     );
   }
 
   renderSettingsButton = () => {
     return (
-      <Grid item xs={12} align="center">
-        <Button
-          variant="contained"
-          color="primary"
+      <div className="container">
+        <button
+          className="btn btn-primary btn-sm"
           onClick={() => this.handleShowSettingsUpdate(true)}
         >
           Settings
-        </Button>
-      </Grid>
+        </button>
+      </div>
     );
   };
 
@@ -258,60 +233,41 @@ class Room extends Component {
     }
     // console.log("is_playing.toString() = ", is_playing);
     return (
-      <Grid container spacing={1}>
-        <Grid item xs={12} align="center">
-          <Typography variant="h4" component="h4">
-            RoomCode: {roomCode}
-          </Typography>
-        </Grid>
-        <Grid alignItems="center">
-          <MusicPlayer
-            song={this.state.song}
-            roomCode={this.state.roomCode}
-            play={this.state.is_playing}
-            guest_can_pause={guest_can_pause}
-            isHost={isHost}
-            {...this.state.song_info}
-            updateplayplauseCallback={this.handleRoomData}
-          />
-          <Grid item xs={12} align="center">
-            <Typography variant="h6" component="h6">
-              Chat Karlo friends
-            </Typography>
-            <ChatRoom roomCode={roomCode} />
-          </Grid>
-        </Grid>
-        <Grid item xs={12} align="center">
-          <Typography variant="h6" component="h6">
-            Votes: {votes_count_to_skip}
-          </Typography>
-        </Grid>
-        <Grid item xs={12} align="center">
-          <Typography variant="h6" component="h6">
-            isplaying: {is_playing.toString()}
-          </Typography>
-        </Grid>
-        <Grid item xs={12} align="center">
-          <Typography variant="h6" component="h6">
-            Guest Can Pause: {guest_can_pause.toString()}
-          </Typography>
-        </Grid>
-        <Grid item xs={12} align="center">
-          <Typography variant="h6" component="h6">
-            Host: {isHost.toString()}
-          </Typography>
-        </Grid>
+      <div className="container text-center justify-content-center bgroom">
+        <h3>
+          <strong>
+            RoomCode: {roomCode} || {isHost ? "HOST" : "USER"}
+          </strong>
+        </h3>
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-lg-6">
+              <MusicPlayer
+                song={this.state.song}
+                roomCode={this.state.roomCode}
+                play={this.state.is_playing}
+                guest_can_pause={guest_can_pause}
+                isHost={isHost}
+                {...this.state.song_info}
+                updateplayplauseCallback={this.handleRoomData}
+              />
+            </div>
+            <div class="col-lg-6">
+              <ChatRoom roomCode={roomCode} />
+            </div>
+          </div>
+        </div>
+        <div>
+          <strong>Votes: {votes_count_to_skip}</strong>
+        </div>
         {isHost ? this.renderSettingsButton() : null}
-        <Grid item xs={12} align="center">
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={this.handlBackButtonPress}
-          >
-            Leave Room
-          </Button>
-        </Grid>
-      </Grid>
+        <button
+          className="btn btn-danger btn-sm"
+          onClick={this.handlBackButtonPress}
+        >
+          Leave Room
+        </button>
+      </div>
     );
   }
 
@@ -324,3 +280,10 @@ class Room extends Component {
 }
 
 export default Room;
+//
+// <div>
+//   <strong>isplaying: {is_playing.toString()}</strong>
+// </div>
+// <div>
+//   <strong>Guest Can Pause: {guest_can_pause.toString()}</strong>
+// </div>

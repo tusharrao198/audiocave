@@ -2,7 +2,6 @@ import React, { Component } from "react";
 // import http from '../services/httpservice';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import axios from "axios";
-import "./chatroom.css";
 import config from "../services/config.json";
 import { toast } from "react-toastify";
 import {
@@ -71,36 +70,26 @@ class ChatRoom extends Component {
 
   render() {
     return (
-      <div className="page-content page-container" id="page-content">
+      <div className="container">
         <div className="padding">
-          <div className="row container d-flex justify-content-center">
-            <div className="col-md-6">
-              <div className="card card-bordered">
-                <div className="card-header">
-                  <h4 className="card-title">
-                    <strong>Chat</strong>
-                  </h4>
-                  <div className="active d-flex justify-content-center">
-                    <ul id="chat-log">
-                      <p className="bg-secondary">Hello!</p>
-                    </ul>
-                  </div>
-                  <div class="input-group mb-3">
-                    <input
-                      id="chat-message-input"
-                      type="text number"
-                      name="text"
-                      class="form-control"
-                      placeholder="Type a message..."
-                    />
-                    <input
-                      id="chat-message-submit"
-                      type="button"
-                      value="Send"
-                    />
-                  </div>
-                </div>
-              </div>
+          <div className="card-header">
+            <h4 className="card-title">
+              <strong>Real-Time Chat</strong>
+            </h4>
+            <div className="active d-flex justify-content-center">
+              <ul id="chat-log">
+                <p className="bg-secondary">Hello!</p>
+              </ul>
+            </div>
+            <div class="input-group mb-3">
+              <input
+                id="chat-message-input"
+                type="text number"
+                name="text"
+                class="form-control"
+                placeholder="Type a message..."
+              />
+              <input id="chat-message-submit" type="button" value="Send" />
             </div>
           </div>
         </div>

@@ -1,20 +1,5 @@
 import React, { Component } from "react";
 import "./App.css";
-// import {
-//   Button,
-//   CssBaseline,
-//   TextField,
-//   Link,
-//   Grid,
-//   Typography,
-//   Container,
-//   Card,
-//   CardHeader,
-//   Paper,
-//   Avatar,
-// } from "@material-ui/core";
-// import { withStyles } from "@material-ui/core/styles";
-
 import { Redirect, Route, Switch, Link } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -26,10 +11,7 @@ import CreateRoom from "./components/createroom";
 import NotFound from "./components/notfound";
 import Navbar from "./components/navbar";
 import Homepage from "./components/homepage";
-// import {withRouter} from 'react-router-dom';
-// import { confirmAlert } from "react-confirm-alert";
-// import "react-confirm-alert/src/react-confirm-alert.css";
-
+// import Background from "./static/images/wall3.jpg";
 class App extends Component {
   state = {
     roomCode: null,
@@ -64,63 +46,49 @@ class App extends Component {
     });
   };
 
-  //Websocket integration
-  // let socketPath = {`ws://${window.location.host}/ws/chat/${this.state.roomCode}/`;
-  // const ro = window.location.pathname;
-  // console.log("PATHNAME", ro);
-  // console.log("socketPath", socketPath);
-
   render() {
     return (
-      <React.Fragment>
-        <ToastContainer />
-        <Navbar />
-        <main className="container">
-          <Switch>
-            <Route exact path="/homepage" render={this.handleredirectSession} />
-            <Route path="/joinroom" exact component={JoinRoom} />
-            <Route path="/createroom" exact component={CreateRoom} />
-            <Route
-              path="/room/:roomCode"
-              render={(props) => {
-                return (
-                  <Room {...props} leaveRoomCallback={this.clearRoomCode} />
-                );
-              }}
-            />
-            <Route path="/notfound" exact component={NotFound} />
-            <Redirect from="/" to="/homepage" />
-            <Redirect to="/notfound" />
-          </Switch>
-        </main>
-      </React.Fragment>
+      <div classNam="App">
+        <header
+          className="App-header"
+          style={{
+            backgroundImage: `url(https://user-images.githubusercontent.com/56690827/109695806-5d05fa00-7bb2-11eb-92c7-8acf6c7d55ac.jpg)`,
+            backgroundPosition: "center",
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat",
+          }}
+        >
+          <ToastContainer />
+          <Navbar />
+          <main className="container">
+            <Switch>
+              <Route
+                exact
+                path="/homepage"
+                render={this.handleredirectSession}
+              />
+              <Route path="/joinroom" exact component={JoinRoom} />
+              <Route path="/createroom" exact component={CreateRoom} />
+              <Route
+                path="/room/:roomCode"
+                render={(props) => {
+                  return (
+                    <Room {...props} leaveRoomCallback={this.clearRoomCode} />
+                  );
+                }}
+              />
+              <Route path="/notfound" exact component={NotFound} />
+              <Redirect from="/" to="/homepage" />
+              <Redirect to="/notfound" />
+            </Switch>
+          </main>
+        </header>
+      </div>
     );
   }
 }
 
 export default App;
-
-// <Route exact path="/homepage" render={this.handleredirectSession} />
-// <Route
-//   exact
-//   path="/"
-//   render={() => {
-//     return this.state.roomCode ? (
-//       <Redirect to={`/room/${this.state.roomCode}`} />
-//     ) : (
-//       <Redirect to="/homepage" />
-//     );
-//   }}
-// />
-
-// <Route
-//   path="/room/:roomCode"
-//   render={(props) => {
-//     return (
-//       <Room {...props} leaveRoomCallback={this.clearRoomCode} />
-//     );
-//   }}
-// />
 
 // function App() {
 //   return (

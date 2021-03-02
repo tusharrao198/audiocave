@@ -30,26 +30,30 @@ class MusicPlayer extends Component {
       // toast.error("playing state has changed ", this.state.is_playing);
       this.setState({ is_playing: this.props.play });
       // console.log("in did update ", document.getElementById('audio'));
-      this.state.is_playing
-        ? document.getElementById("audio").play()
-        : document.getElementById("audio").pause();
+      if (this.state.is_playing) {
+        document.getElementById("audio").play();
+      } else {
+        document.getElementById("audio").pause();
+      }
     }
   }
 
   handleButton = () => {
+    let playpause_btn = document.querySelector(".playpause-track");
     let myAudio = document.getElementById("audio");
     if (myAudio.paused) {
       // console.log("/ false to true")
+      playpause_btn.innerHTML = '<i class="fa fa-pause-circle fa-3x"></i>';
       this.handleplaypauseUpdateButton(true);
     } else {
       // console.log("// true to false")
+      playpause_btn.innerHTML = '<i class="fa fa-play-circle fa-3x"></i>';
       this.handleplaypauseUpdateButton(false);
     }
   };
 
   handleplaypauseUpdateButton = async (value) => {
     // console.log("handleplaypauseUpdateButton Called");
-
     const post = {
       is_playing: value,
       roomCode: this.state.roomCode,
@@ -82,44 +86,46 @@ class MusicPlayer extends Component {
   };
 
   render() {
-    const muiTheme = createMuiTheme({});
     return (
-      <Card container alignItems="center">
-        <Grid container alignItems="center">
-          <Grid item align="center" xs={4}>
-            <img src={this.props.image_url} height="100%" width="100%" />
-          </Grid>
-          <Grid item align="center" xs={8}>
-            <Typography component="h5" variant="h5">
-              {this.props.song_name}
-            </Typography>
-            <Typography color="textSecondary" variant="subtitle1">
-              {this.props.artist}
-            </Typography>
-            <ThemeProvider theme={muiTheme}>
-              <audio
-                controls
-                id="audio"
-                src={this.props.song_url}
-                border="0"
-                width="100%"
-                height="60"
-                autostart="false"
-                loop="false"
-              ></audio>
-            </ThemeProvider>
-            <button
+      <div className="container">
+        <div className="container">
+          <img src={this.props.image_url} height="100%" width="100%" />
+        </div>
+        <div className="container">
+          <div>
+            <strong>Artist : {this.props.song_name}</strong>
+          </div>
+          <div>
+            <strong>Song : {this.props.artist}</strong>
+          </div>
+          <div className="buttons">
+            <div
+              class="playpause-track"
               id="submit_button"
-              className="btn btn-success btn-sm"
               onClick={this.handledisablebutton}
             >
-              {this.props.play ? "Pause" : "Play"}
-            </button>
-          </Grid>
-        </Grid>
-      </Card>
+              <i class="fa fa-play-circle fa-3x"></i>
+            </div>
+            <audio
+              id="audio"
+              src={this.props.song_url}
+              border="0"
+              width="100%"
+              height="60"
+              autostart="false"
+              loop="false"
+            ></audio>
+          </div>
+        </div>
+      </div>
     );
   }
 }
 
 export default MusicPlayer;
+
+// {this.props.play ? (
+//   <strong>"Pause"</strong>
+// ) : (
+//   <strong>"Play"</strong>
+// )}
