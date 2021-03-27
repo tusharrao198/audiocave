@@ -22,6 +22,7 @@ class MusicPlayer extends Component {
   state = {
     roomCode: this.props.roomCode,
     is_playing: false,
+    musicurl: this.props.songurl,
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -56,6 +57,7 @@ class MusicPlayer extends Component {
     // console.log("handleplaypauseUpdateButton Called");
     const post = {
       is_playing: value,
+      musicurl: this.state.musicurl,
       roomCode: this.state.roomCode,
     };
 

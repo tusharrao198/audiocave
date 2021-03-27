@@ -2,6 +2,7 @@ import React, { Component } from "react";
 // import http from '../services/httpservice';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import axios from "axios";
+import { TextField, Button, Grid, Typography } from "@material-ui/core";
 import config from "../services/config.json";
 import { toast } from "react-toastify";
 import "../index.css";
@@ -45,6 +46,7 @@ class Room extends Component {
         votes_count_to_skip: data.votes_count_to_skip,
         isHost: data.ishost,
         is_playing: data.is_playing,
+        song_url: data.songurl,
       });
       // console.log(
       //   "IN ROOM CALL INTERVAL " , this.state.is_playing
@@ -52,7 +54,7 @@ class Room extends Component {
     } catch (ex) {
       // toast.error("REDIRECTING TO HOMEPAGE");
       this.setState({ roomCode: null });
-      console.log("IN ROOM INTERVAL FOUND ROOM CODE = ", this.state.roomCode);
+      // console.log("IN ROOM INTERVAL FOUND ROOM CODE = ", this.state.roomCode);
     }
   };
 
@@ -66,6 +68,9 @@ class Room extends Component {
     }
     if (prevState.is_playing !== this.state.is_playing) {
       console.log("isPlaying updated by interval ", this.state.is_playing);
+    }
+    if (prevState.songurl !== this.state.songurl) {
+      this.handlegetCurrentSong();
     }
   }
 
@@ -88,6 +93,7 @@ class Room extends Component {
           isHost: data.ishost,
           roomCode: data.RoomCodeinSession,
           is_playing: data.is_playing,
+          song_url: data.songurl,
         });
         console.log("ISHOST", this.state.isHost);
         if (this.state.isHost) {
@@ -174,6 +180,29 @@ class Room extends Component {
     }
   };
 
+  handlepostsong = async () => {
+    const post = {
+      ytlink: this.state.songurl,
+      roomCode: this.state.roomCode,
+    };
+
+    try {
+      const { data } = await axios.post(
+        `http://127.0.0.1:8000/youtube/getlink/`,
+        post
+      );
+      this.handlegetCurrentSong();
+    } catch (ex) {
+      if (
+        ex.response &&
+        ex.response.status >= 400 &&
+        ex.response.status <= 500
+      ) {
+        toast.error("Error Posting link");
+      }
+    }
+  };
+
   handleShowSettingsUpdate = (value) => {
     // console.log("show settings");
     this.setState({
@@ -244,6 +273,7 @@ class Room extends Component {
             <div class="col-lg-6">
               <MusicPlayer
                 song={this.state.song}
+                songurl={this.state.songurl}
                 roomCode={this.state.roomCode}
                 play={this.state.is_playing}
                 guest_can_pause={guest_can_pause}
@@ -267,6 +297,31 @@ class Room extends Component {
         >
           Leave Room
         </button>
+
+        <Grid item xs={12} align="center">
+          <Typography variant="h4" component="h4">
+            POST LINK
+          </Typography>
+        </Grid>
+        <Grid item xs={12} align="center">
+          <TextField
+            error={this.state.error}
+            label="Code"
+            placeholder="Enter youtube url with 11 digits"
+            helperText={this.state.error}
+            variant="outlined"
+            onChange={(e) => this.setState({ songurl: e.target.value })}
+          />
+        </Grid>
+        <Grid item xs={12} align="center">
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={this.handlepostsong}
+          >
+            Post
+          </Button>
+        </Grid>
       </div>
     );
   }
