@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-// import http from '../services/httpservice';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import axios from "axios";
 import config from "../services/config.json";
@@ -33,7 +32,6 @@ class ChatRoom extends Component {
 
     chatSocket.onmessage = (e) => {
       const data = JSON.parse(e.data);
-      // document.querySelector("#chat-log").value += data.message + "\n";
       this.handleshowdata(data);
     };
 

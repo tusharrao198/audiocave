@@ -37,19 +37,15 @@ class CreateRoom extends Component {
     this.setState({
       votes_count_to_skip: e.target.value,
     });
-    // console.log("VOTES CHANGE", this.state);
   };
 
   handleGuestCanPauseChange = (e) => {
-    // console.log("handleGuestCanPauseChange before", this.state);
     this.setState({
       guest_can_pause: e.target.value === "true" ? true : false,
     });
-    // console.log("handleGuestCanPauseChange after", this.state);
   };
 
   handleRoomButtonPressed = async () => {
-    // console.log("ROOM BUTTON", this.state);
     const post_ = {
       votes_count_to_skip: this.state.votes_count_to_skip,
       guest_can_pause: this.state.guest_can_pause,
@@ -58,12 +54,10 @@ class CreateRoom extends Component {
       config.apiEndpointCreateRoom,
       post_
     );
-    // console.log("RES", data.code);
     this.props.history.push(`${config.gotoRoom}${data.code}`);
   };
 
   handleUpdateButton = async () => {
-    // console.log("handleUpdateButton Called");
     const {
       roomCodeforUpdation,
       guest_can_pause,
@@ -74,13 +68,11 @@ class CreateRoom extends Component {
       guest_can_pause: guest_can_pause,
       code: roomCodeforUpdation,
     };
-    // console.log("Updates", post);
     if (this.state.roomCodeforUpdation !== null) {
       const { data } = await axios.patch(
         `${config.apiEndpointUpdateRoom}`,
         post
       );
-      // console.log("Update data = ", data);
       toast.success("Settings Updated Successfully");
       this.props.updateCallback();
     } else {

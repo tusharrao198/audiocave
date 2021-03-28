@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-// import http from '../services/httpservice';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import axios from "axios";
 import "./chatroom.css";
@@ -45,7 +44,6 @@ class ChatRoom extends Component {
     document.querySelector("#chat-message-input").focus();
     document.querySelector("#chat-message-input").onkeyup = function (e) {
       if (e.keyCode === 13) {
-        // enter, return
         document.querySelector("#chat-message-submit").click();
       }
     };
@@ -82,46 +80,3 @@ class ChatRoom extends Component {
 }
 
 export default ChatRoom;
-
-//
-// {% extends "base.html" %}
-//
-// {% block content %}
-//   {% load staticfiles %}
-//   <h1>{{ room.label }}</h1>
-//   <p class="quiet">
-//     Anyone with this URL can join the room and chat:
-//     <code>{{ request.scheme }}://{{ request.get_host }}/{{ room.label }}</code>
-//   </p>
-//   <p>
-//     <label for="handle">Your name:</label>
-//     <input id="handle" type="text" placeholder="handle">
-//   </p>
-//   <form id="chatform">
-//     <table id="chat">
-//       <tbody>
-//         {% for message in messages %}
-//           <tr>
-//             <td>{{ message.formatted_timestamp }}</td>
-//             <td>{{ message.handle }}</td>
-//             <td>{{ message.message }}</td>
-//           </tr>
-//         {% endfor %}
-//       </tbody>
-//       <tfoot>
-//       <tr>
-//         <td>Say something:</td>
-//         <td colspan=2>
-//           <input id="message" type="text" placeholder="message">
-//           <button type="submit" id="go">Say it</button>
-//         </td>
-//       </tfoot>
-//     </table>
-//   </form>
-// {% endblock content %}
-//
-// {% block afterbody %}
-//   <script type="text/javascript" src='{% static "jquery-1.12.1.min.js" %}'></script>
-//   <script type="text/javascript" src='{% static "reconnecting-websocket.min.js" %}'></script>
-//   <script type="text/javascript" src='{% static "chat.js" %}'></script>
-// {% endblock afterbody %}
