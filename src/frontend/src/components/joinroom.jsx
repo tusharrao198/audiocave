@@ -13,12 +13,10 @@ class JoinRoom extends Component {
 
   handleroomButtonPressed = async () => {
     const roomCode = this.state.roomCode;
-    // console.log("len", roomCode);
     try {
       const { data: data } = await axios.post(config.apiEndpointJoinRoom, {
         code: roomCode,
       });
-      // console.log("1234-one", data);
       this.props.history.push(`${config.gotoRoom}${roomCode}`);
     } catch (ex) {
       if (
@@ -33,7 +31,6 @@ class JoinRoom extends Component {
   };
 
   render() {
-    // console.log("After IIIIIIi", this.state.roomCode);
     return (
       <Grid container spacing={1}>
         <Grid item xs={12} align="center">

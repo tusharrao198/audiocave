@@ -19,20 +19,19 @@ from music_room.models import Room
 # from youtubeapi.models import Youtubedata
 import requests
 
-
 def getjson(u):
     ydl = {}
     result_ = ""
-    count = 0
+    count = 1
     for i in range(10):
-        count += 1
-        print(f"\n\ntrying {count+1} time\n\n")
+        print(f"\n\ntrying {count} time\n\n")
         result = youtube_dl.YoutubeDL(ydl).extract_info(u, download=False)
         if result is not None and len(result) != 0:
             result_ = result
             break
+        else:
+            count += 1
     formats = result_["formats"]
-
     # votes = Votecount.objects.filter(room=room, song_id=result["id"])
     song_info = {
         "song_id": result_["id"],
@@ -103,7 +102,7 @@ def getYTlink(request, *args, **kwargs):
                 print("working 2")
                 room.current_song = song_info["song_id"]
                 try:
-                    if url_ is not None:
+                    if len(url_) !=0 and url_ is not None:
                         print("working 3")
                         room.songurl = url_
                         room.save(update_fields=["current_song", "songurl"])

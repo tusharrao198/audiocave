@@ -17,9 +17,6 @@ import { Link } from "react-router-dom";
 import config from "../services/config.json";
 import Room from "./room";
 
-axios.defaults.xsrfCookieName = "csrftoken";
-axios.defaults.xsrfHeaderName = "X-CSRFToken";
-
 class CreateRoom extends Component {
   static defaultProps = {
     votes_count_to_skip: 2,

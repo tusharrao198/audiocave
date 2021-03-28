@@ -44,12 +44,18 @@ class MusicPlayer extends Component {
     let myAudio = document.getElementById("audio");
     if (myAudio.paused) {
       // console.log("/ false to true")
-      playpause_btn.innerHTML = '<i class="fa fa-pause-circle fa-3x"></i>';
+      // playpause_btn.innerHTML = '<i class="fa fa-pause-circle fa-3x"></i>';
       this.handleplaypauseUpdateButton(true);
     } else {
       // console.log("// true to false")
-      playpause_btn.innerHTML = '<i class="fa fa-play-circle fa-3x"></i>';
+      // playpause_btn.innerHTML = '<i class="fa fa-play-circle fa-3x"></i>';
       this.handleplaypauseUpdateButton(false);
+    }
+    if (this.props.play) {
+      playpause_btn.innerHTML = '<i class="fa fa-play-circle fa-3x"></i>';
+    }
+    if (this.props.play === false) {
+      playpause_btn.innerHTML = '<i class="fa fa-pause-circle fa-3x"></i>';
     }
   };
 
@@ -63,11 +69,7 @@ class MusicPlayer extends Component {
 
     try {
       console.log("Sending Updates", post);
-      const { data } = await axios.patch(
-        "http://127.0.0.1:8000/youtube/update/",
-        post
-      );
-      // toast.success(`Song ${this.state.is_playing}ed for user`);
+      const { data } = await axios.patch("/youtube/update/", post);
     } catch (ex) {
       toast.error("Error Updating Room Details");
     }
@@ -82,7 +84,7 @@ class MusicPlayer extends Component {
       toast.warning("DENIED ACCESS BY HOST");
       setTimeout(
         () => (document.getElementById("submit_button").disabled = false),
-        5000
+        2000
       );
     }
   };
@@ -95,10 +97,10 @@ class MusicPlayer extends Component {
         </div>
         <div className="container">
           <div>
-            <strong>Artist : {this.props.song_name}</strong>
+            <strong>Artist : {this.props.artist}</strong>
           </div>
           <div>
-            <strong>Song : {this.props.artist}</strong>
+            <strong>Song : {this.props.song_name}</strong>
           </div>
           <div className="buttons">
             <div
@@ -125,9 +127,3 @@ class MusicPlayer extends Component {
 }
 
 export default MusicPlayer;
-
-// {this.props.play ? (
-//   <strong>"Pause"</strong>
-// ) : (
-//   <strong>"Play"</strong>
-// )}
