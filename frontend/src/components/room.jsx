@@ -33,7 +33,7 @@ class Room extends Component {
     this.handlegetCurrentSong();
     console.log("componentDidMount called");
     // this.interval = setInterval(this.handlegetCurrentSong, 1000);
-    this.interval1 = setInterval(this.room, 1000);
+    // this.interval1 = setInterval(this.room, 1000);
   }
 
   room = async () => {
