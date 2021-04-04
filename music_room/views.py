@@ -172,9 +172,10 @@ def GetRoomView(request, code):  # this core parameter coming from url
             serializer = RoomSerializer(queryset, many=True)
             return Response(data, status=status.HTTP_200_OK)
         else:
-            # print("ELSE POP", request.session.pop("Room_code"))
-            # print("Deleting Session")
+            print("ELSE POP", request.session.pop("Room_code"))
+            print("Deleting Session")
             request.session.delete()
+            print("Deleted Session")
     print("ROOM NOT FOUND IN GETROOMVIEW")
     # return redirect('http://127.0.0.1:8000/homepage/')
     return Response(

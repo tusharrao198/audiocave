@@ -13,7 +13,7 @@ from requests import Request, post
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from spotifyapi.models import Votecount
+# from spotifyapi.models import Votecount
 from music_room.models import Room
 
 # from youtubeapi.models import Youtubedata
@@ -66,10 +66,9 @@ def getYTlink(request, *args, **kwargs):
         url_ = request.data.get(lookup_url_kwargs)
         print("post youtube url", url_)
         ydl = {}
-        # url_ = "https://www.youtube.com/watch?v=21c3duHlFAc"
-        # if url_ is None:
-        #     url_ = "https://www.youtube.com/watch?v=_NGQfFCFUn4"
-        #     # url_ = room.songurl
+        if url_ is None:
+            url_ = "https://www.youtube.com/watch?v=_NGQfFCFUn4"
+            # url_ = room.songurl
         result = ""
         for i in range(10):
             result_ = youtube_dl.YoutubeDL(ydl).extract_info(url_, download=False)
@@ -78,7 +77,7 @@ def getYTlink(request, *args, **kwargs):
                 break
         try:
             formats = result["formats"]
-            votes = Votecount.objects.filter(room=room, song_id=result["id"])
+            # votes = Votecount.objects.filter(room=room, song_id=result["id"])
             # print(f"votes = {votes} ")
             song_info = {
                 "song_id": result["id"],
@@ -87,8 +86,8 @@ def getYTlink(request, *args, **kwargs):
                 "image_url": result["thumbnails"][3]["url"],
                 "duration": result["duration"],
                 "view_count": result["view_count"],
-                "vote": len(votes),
-                "votes_required": room.votes_count_to_skip,
+                # "vote": len(votes),
+                # "votes_required": room.votes_count_to_skip,
             }
             for i in formats:
                 f = i["format"]
@@ -119,15 +118,16 @@ def getYTlink(request, *args, **kwargs):
     elif request.method == "GET":
         print("room, song url", room.songurl)
         song_data = getjson(room.songurl)
+        print("\n   ",song_data, "\n\n")
         song_info = {
             "song_id": song_data["song_id"],
             "song_name": song_data["song_name"],
             "artist": song_data["artist"],
             "image_url": song_data["image_url"],
-            "duration": "dur",
-            "view_count": "def",
-            "vote": "def",
-            "votes_required": room.votes_count_to_skip,
+            # "duration": "dur",
+            # "view_count": "def",
+            # "vote": "def",
+            # "votes_required": room.votes_count_to_skip,
             "song_url": song_data["song_url"],
         }
         return Response(song_info, status=status.HTTP_200_OK)
@@ -169,6 +169,7 @@ class playpauseSong(UpdateAPIView):
                     )
         print(serializer.errors)
         return Response({}, status=status.HTTP_403_FORBIDDEN)
+
 
 
 # def play_pause_Song(session_key):

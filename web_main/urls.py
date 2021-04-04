@@ -11,7 +11,7 @@ urlpatterns = [
     # path("spotify/", include("spotifyapi.urls")),
     path("youtube/", include("youtubeapi.urls")),
     path("chat/", include("chatroom.urls")),
-    path("", TemplateView.as_view(template_name="index.html"), name="App.js"),
+    # path("", TemplateView.as_view(template_name="index.html"), name="App.js"),
     # path("homepage/", TemplateView.as_view(template_name="index.html")),
     # path("room/", TemplateView.as_view(template_name="index.html")),
     # path("joinroom/", TemplateView.as_view(template_name="index.html")),

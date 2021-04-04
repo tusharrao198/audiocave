@@ -46,7 +46,7 @@ CORS_ALLOW_CREDENTIALS = True
 INSTALLED_APPS = [
     "channels",
     "music_room.apps.MusicRoomConfig",
-    "spotifyapi.apps.SpotifyapiConfig",
+    # "spotifyapi.apps.SpotifyapiConfig",
     "youtubeapi.apps.YoutubeapiConfig",
     "chatroom.apps.ChatroomConfig",
     "django.contrib.admin",
@@ -96,13 +96,13 @@ CHANNEL_LAYERS = {
 
 TEMPLATE_DIR = os.path.join(BASE_DIR, "music_room", "templates", "music_room/")
 
-REACT_APP_DIR = os.path.join(BASE_DIR, "frontend/build")
+# REACT_APP_DIR = os.path.join(BASE_DIR, "frontend/build")
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            REACT_APP_DIR,
+            TEMPLATE_DIR,
         ],
         "APP_DIRS": True,
         "OPTIONS": {
