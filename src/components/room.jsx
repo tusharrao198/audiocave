@@ -16,7 +16,7 @@ class Room extends Component {
     guest_can_pause: false,
     votes_count_to_skip: 2,
     isHost: false,
-    roomCode: this.props.match.params.roomCode, // getting from url
+    roomCode: this.props.match.params.roomCode,
     showSettings: false,
     song_info: {},
     song: null,
@@ -52,7 +52,6 @@ class Room extends Component {
 
     chatSocket.onmessage = async (e) => {
       const data = JSON.parse(e.data);
-      // console.log(data);
       this.handleshowdata(data);
     };
 
@@ -83,17 +82,7 @@ class Room extends Component {
     this.handleRoomData();
     this.handlegetCurrentSong();
     console.log("componentDidMount called");
-    // this.interval = setInterval(this.handlegetCurrentSong, 1000);
-    // this.interval1 = setInterval(this.room, 2000);
   }
-
-  // send_playPauseMessage = (chatSocket) => {
-  //   chatSocket.send(
-  //     JSON.stringify({
-  //       message: message,
-  //     })
-  //   );
-  // }
 
   handleshowdata = async (e) => {
     let node = document.createElement("p");
@@ -114,10 +103,8 @@ class Room extends Component {
         window.location.reload();
       }
     }
-
     if (prevState.is_playing !== this.state.is_playing) {
       console.log("isPlaying updated by interval ", this.state.is_playing);
-      // send_playPauseMessage(chatSocket);
     }
     if (prevState.songurl !== this.state.songurl) {
       this.handlegetCurrentSong();
@@ -143,7 +130,7 @@ class Room extends Component {
         });
         console.log("ISHOST", this.state.isHost);
       } else {
-        // console.log("Room Code is Null");
+        //Room Code is Null
         this.props.history.replace("/");
       }
     } catch (ex) {
@@ -155,23 +142,20 @@ class Room extends Component {
 
   handlBackButtonPress = async () => {
     const { data } = await axios.post(config.apiEndpointLeaveRoom);
-    // console.log("LEAVE ROOM", data);
     this.props.leaveRoomCallback(null);
     this.props.history.replace("/");
   };
-  //
+
   handlegetCurrentSong = async () => {
     try {
       const { data } = await axios.get(`/youtube/getlink/`);
-      // console.log("handlegetcurrent song", data);
       if (this.state.song !== data.song_name) {
         console.log("Current Song_info Added");
         this.setState({ song: data.song_name });
         this.setState({ songurl: data.song_url });
         this.setState({ song_info: data });
         this.setState({ bgimage: data.image_url });
-      }
-          
+      }          
     } catch (ex) {
       if (
         ex.response &&
@@ -180,21 +164,18 @@ class Room extends Component {
         this.state.retrycount <= 10
       ) {
         this.setState({ retrycount: this.state.retrycount++ });
-        console.log("Current Song_info not received");
         this.handlegetCurrentSong();
       }
     }
   };
 
   handlepostsong = async () => {
-    console.log("handlepostsong", this.state.postinput);
     const post = {
       ytlink: this.state.postinput,
       roomCode: this.state.roomCode,
     };
     try {
       const { data } = await axios.post(`/youtube/getlink/`, post);
-      console.log("handlepost link", data);
       this.handlegetCurrentSong();
     } catch (ex) {
       if (
@@ -249,8 +230,6 @@ class Room extends Component {
   };
 
   handleplaypauseUpdateButton = async (event) => {
-    console.log("handleplaypauseUpdateButton Called", event.type);
-    // this.send_playPause_status(event.type);
     let value = null;
     if (event.type === "play") {
       console.log("PLAY SEND");
@@ -265,7 +244,6 @@ class Room extends Component {
       roomCode: this.state.roomCode,
     };
     try {
-      console.log("Sending Updates", post);
       const { data } = await axios.patch("/youtube/update/", post);
     } catch (ex) {
       toast.error("Error Updating Room Details");
@@ -275,8 +253,6 @@ class Room extends Component {
 
   send_playPause_status = (status) => {
     const {chatSocket} = this.state;
-    console.log("  send_playPause_status called", status);
-    console.log("socket object",this.state.chatSocket)
     chatSocket.send(
       JSON.stringify({
         message: "",
@@ -304,7 +280,6 @@ class Room extends Component {
     if (showSettings) {
       return this.renderSettings();
     }
-    // console.log("is_playing.toString() = ", this.state.songurl);
     return (
       <div
         className="container text-center justify-content-center bgroom"
@@ -335,7 +310,6 @@ class Room extends Component {
                 send_status = {this.state.send_status}
                 {...this.state.song_info}
                 playpauseUpdate={this.handleplaypauseUpdateButton}
-                // updateplayplauseCallback={this.handleRoomData}
               />
             </div>
             <div className="col-lg-6">
@@ -404,31 +378,8 @@ class Room extends Component {
 
   componentWillUnmount() {
     console.log("componentWillUnmount called");
-    // clearInterval(this.interval);
-    // clearInterval(this.interval1);
     console.log("componentWillUnmount called done");
   }
 }
 
 export default Room;
-
-
-  // room = async () => {
-  //   try {
-  //     axios.get(config.apiEndpointgetRoom + `${this.state.roomCode}`)
-  //       .then((res) => {
-  //         // console.log("STATTUA", res.status)
-  //         // MusicPlayer.audiofunction(res.data.is_playing);
-  //         this.setState({
-  //           guest_can_pause: res.data.guest_can_pause,
-  //           votes_count_to_skip: res.data.votes_count_to_skip,
-  //           isHost: res.data.ishost,
-  //           is_playing: res.data.is_playing,
-  //           songurl: res.data.songurl,
-  //           send_status:res.status,
-  //         });
-  //       });
-  //   } catch (ex) {
-  //     this.setState({ roomCode: null });
-  //   }
-  // };

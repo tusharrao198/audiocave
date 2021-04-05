@@ -23,13 +23,6 @@ import "react-h5-audio-player/lib/styles.css";
 
 export default function MusicPlayer(props) {
   const { play } = props;
-  // state = {
-  //   roomCode: props.roomCode,
-  //   is_playing: false,
-  //   musicurl: props.songurl,
-  //   value: false,
-  // };
-
   var player = useRef();
 
   function Audiofunction(play){

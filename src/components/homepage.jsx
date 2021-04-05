@@ -1,5 +1,7 @@
 import { React, Component } from "react";
 import { Redirect, Route, Switch, Link } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.css";
+import "font-awesome/css/font-awesome.css";
 
 class Homepage extends Component {
   state = {};

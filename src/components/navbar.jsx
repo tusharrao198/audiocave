@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import { Link, NavLink } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.css";
+import "font-awesome/css/font-awesome.css";
 
 //stateless functional Component with object destructuring
 

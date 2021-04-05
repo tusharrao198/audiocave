@@ -12,35 +12,29 @@ import NotFound from "./components/notfound";
 import Navbar from "./components/navbar";
 import Homepage from "./components/homepage";
 // import Background from "./static/images/wall3.jpg";
+import config from "./services/config.json";
+
 class App extends Component {
   state = {
     roomCode: null,
   };
 
   async componentDidMount() {
-    console.log("Mat BOL ");
-    const { data } = await axios.get(`/api/userinroom/`);
-    // console.log("AB BOL NA ");
+    const { data } = await axios.get(config.apiEndpointUserinRoom);
     this.setState({ roomCode: data.code });
     const { roomCode } = this.state;
-    // console.log("ASYNC APP>JS ROOOOM", roomCode);
   }
 
   handleredirectSession = () => {
-    // console.log("ROOMCODE::::::", this.state.roomCode);
     if (this.state.roomCode !== null) {
-      // console.log("SSSSSSS");
       alert("Session found!");
       return <Redirect to={`/room/${this.state.roomCode}`} />;
     } else {
-      // console.log("IS NULL");
-      // this.setState({ roomCode: null });
       return <Homepage />;
     }
   };
   //
   clearRoomCode = (code_) => {
-    console.log("leaveRoomCallback data came was ", code_);
     this.setState({
       roomCode: code_,
     });
