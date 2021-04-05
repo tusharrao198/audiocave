@@ -22,11 +22,7 @@ try:
 except:
     DEBUG = os.environ.get("DEBUG")
 
-ALLOWED_HOSTS = [
-    "audiocave.herokuapp.com",
-    "127.0.0.1",
-    "localhost",
-]
+ALLOWED_HOSTS = ["audiocave.herokuapp.com", "127.0.0.1", "localhost", "localhost:3000"]
 
 # CSRF
 CORS_ORIGIN_ALLOW_ALL = False
@@ -78,21 +74,23 @@ ROOT_URLCONF = "web_main.urls"
 
 ASGI_APPLICATION = "web_main.asgi.application"
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
+
+
 # CHANNEL_LAYERS = {
 #     'default': {
-#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'BACKEND': 'channels.layers.InMemoryChannelLayer',
 #         'CONFIG': {
 #             "hosts": [('127.0.0.1', 6379)],
 #         },
-#     },
 # }
-
-
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
-    },
-}
 
 TEMPLATE_DIR = os.path.join(BASE_DIR, "music_room", "templates", "music_room/")
 

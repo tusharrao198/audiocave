@@ -13,11 +13,13 @@ from requests import Request, post
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+
 # from spotifyapi.models import Votecount
 from music_room.models import Room
 
 # from youtubeapi.models import Youtubedata
 import requests
+
 
 def getjson(u):
     ydl = {}
@@ -101,7 +103,7 @@ def getYTlink(request, *args, **kwargs):
                 print("working 2")
                 room.current_song = song_info["song_id"]
                 try:
-                    if len(url_) !=0 and url_ is not None:
+                    if len(url_) != 0 and url_ is not None:
                         print("working 3")
                         room.songurl = url_
                         room.save(update_fields=["current_song", "songurl"])
@@ -116,9 +118,9 @@ def getYTlink(request, *args, **kwargs):
             return Response({}, status=status.HTTP_404_NOT_FOUND)
 
     elif request.method == "GET":
-        print("room, song url", room.songurl)
+        # print("room, song url", room.songurl)
         song_data = getjson(room.songurl)
-        print("\n   ",song_data, "\n\n")
+        # print("\n   ",song_data, "\n\n")
         song_info = {
             "song_id": song_data["song_id"],
             "song_name": song_data["song_name"],
@@ -169,7 +171,6 @@ class playpauseSong(UpdateAPIView):
                     )
         print(serializer.errors)
         return Response({}, status=status.HTTP_403_FORBIDDEN)
-
 
 
 # def play_pause_Song(session_key):

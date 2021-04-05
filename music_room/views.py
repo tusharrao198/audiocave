@@ -9,6 +9,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 import json
+
 # from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from django.http import JsonResponse
@@ -63,12 +64,12 @@ class UpdateRoomView(UpdateAPIView):
     def patch(self, request, format=None):
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
-            print("session created in UpdateRoomView")
+            # print("session created in UpdateRoomView")
 
         serializer = self.serializer_class(
             data=request.data
         )  # getting data from post request made on the endpoint
-        print(f"UpdateRoomView = {serializer}")
+        # print(f"UpdateRoomView = {serializer}")
 
         if serializer.is_valid():
             guest_can_pause = serializer.data.get(
@@ -76,20 +77,18 @@ class UpdateRoomView(UpdateAPIView):
             )  # getting data from api view
             votes_count_to_skip = serializer.data.get("votes_count_to_skip")
             code = serializer.data.get("code")
-            print(
-                f"guest={guest_can_pause}, votes={votes_count_to_skip}, code={code} ---in UpdateRoomView"
-            )
+            # print(
+            #     f"guest={guest_can_pause}, votes={votes_count_to_skip}, code={code} ---in UpdateRoomView"
+            # )
             queryset = Room.objects.filter(code=code)
-            print(f"qqqqq = {queryset}")
             if not queryset.exists():
                 return Response(
                     {"msg": "Room not found."}, status=status.HTTP_404_NOT_FOUND
                 )
-            print("GOING FORWARDin  UpdateRoomView")
             room = queryset[0]
-            print(f"UpdateRoomView room = {room}")
+            # print(f"UpdateRoomView room = {room}")
             user_id = self.request.session.session_key
-            print(f"room host = {room.host}, and user_id={user_id}")
+            # print(f"room host = {room.host}, and user_id={user_id}")
             if room.host != user_id:
                 return Response(
                     {"msg": "You are not the host of this room."},
@@ -177,7 +176,7 @@ def GetRoomView(request, code):  # this core parameter coming from url
             request.session.delete()
             print("Deleted Session")
     print("ROOM NOT FOUND IN GETROOMVIEW")
-    # return redirect('http://127.0.0.1:8000/homepage/')
-    return Response(
-        {"BAD REQUEST": "ROOM LEFT BY USER"}, status=status.HTTP_404_NOT_FOUND
-    )
+    return redirect("http://127.0.0.1:8000/homepage/")
+    # return Response(
+    #     {"BAD REQUEST": "ROOM LEFT BY USER"}, status=status.HTTP_404_NOT_FOUND
+    # )
