@@ -42,7 +42,6 @@ CORS_ALLOW_CREDENTIALS = True
 INSTALLED_APPS = [
     "channels",
     "music_room.apps.MusicRoomConfig",
-    # "spotifyapi.apps.SpotifyapiConfig",
     "youtubeapi.apps.YoutubeapiConfig",
     "chatroom.apps.ChatroomConfig",
     "django.contrib.admin",

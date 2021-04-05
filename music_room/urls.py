@@ -12,7 +12,6 @@ from .views import (
 )
 
 urlpatterns = [
-    # path("", views.music_room, name="music-home"),
     path("api/", RoomView.as_view(), name="music-api"),
     path("api/createroom/", CreateRoomView.as_view(), name="create-room-api"),
     path("api/getroom/<str:code>/", views.GetRoomView, name="getroom-api"),
