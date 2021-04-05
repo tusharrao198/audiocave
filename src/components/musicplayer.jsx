@@ -21,8 +21,6 @@ import SkipNextIcon from "@material-ui/icons/SkipNext";
 import AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
 
-export default
-
 export default function MusicPlayer(props) {
   const { play } = props;
   // state = {
@@ -31,18 +29,18 @@ export default function MusicPlayer(props) {
   //   musicurl: props.songurl,
   //   value: false,
   // };
-  const player = useRef();
+
+  var player = useRef();
 
   function Audiofunction(play){
-    const player = useRef();
     console.log("type from backend", play);
-    if (props.play) {
+    if (play==="play") {
       player.current.audio.current.play();
     } else {
       player.current.audio.current.pause();
     }
+    return <h1></h1>
   };
-
 
   return (
     <div className="App">
@@ -53,6 +51,10 @@ export default function MusicPlayer(props) {
         onPause={props.playpauseUpdate}
         ref={player}
       />
+      {
+        props.play? Audiofunction(props.play) : <h1></h1>
+      }
     </div>
   );
+  
 }
