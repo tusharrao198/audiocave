@@ -14,7 +14,7 @@ export default function MusicPlayer(props) {
     // console.log("type from backend", play);
     if (play==="play") {
       player.current.audio.current.play();
-    } else {
+    } else if (play==="pause") {
       player.current.audio.current.pause();
     }
     return <h1></h1>

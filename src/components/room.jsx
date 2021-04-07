@@ -29,7 +29,7 @@ class Room extends Component {
     messages: [],
     playpausestatus: null,
     chatSocket: null,
-    playPausemessage: null,
+    playPausemessage: "",
     leaveRoomStatus: false,
     updateSong: false,
   };
@@ -72,27 +72,32 @@ class Room extends Component {
           message: message,
           playPausemessage: "",
           leaveRoom: this.state.leaveRoomStatus,
+          updateSong: this.state.updateSong,
         })
       );
       messageInputDom.value = "";
     };    
 
-    this.handleRoomData();
-    console.log("componentDidMount called");
+    if (roomCode !== null && roomCode !== undefined) {
+      this.handleRoomData();
+      console.log("componentDidMount called");
+    } 
   }
 
   handleshowdata = async (e) => {
     let node = document.createElement("p");
     let textnode = document.createTextNode(e.message);
     node.appendChild(textnode);
-    document.getElementById("chat-log").appendChild(node);
-    this.setState({playPausemessage : e.playPausemessage});
-    try{
-      this.setState({leaveRoomStatus : e.leaveRoom});
-    }catch(ex){
-      console.log("cleared")
+    if (document.getElementById("chat-log") !==null){
+      document.getElementById("chat-log").appendChild(node);
+      try {
+        this.setState({playPausemessage : e.playPausemessage});
+        this.setState({leaveRoomStatus : e.leaveRoom});
+        this.setState({updateSong : e.updateSong});
+      }catch(ex) {
+      console.log("error in recieving", ex); 
+      }
     }
-    // this.setState({updateSong : e.updateSong});
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -112,6 +117,10 @@ class Room extends Component {
     }
     if (prevState.leaveRoomStatus !== this.state.leaveRoomStatus) {
       this.handleLeaveRoom();
+    }
+    if (prevState.updateSong !== this.state.updateSong) {
+      console.log("updatesong state changed from ",prevState.updateSong , "to => ", this.state.updateSong);
+      this.handlegetCurrentSong();
     }  
   }
 
@@ -148,7 +157,6 @@ class Room extends Component {
         this.props.leaveRoomCallback(null);
         if (this.state.isHost){ // if host left the room then delete room
           console.log("// if host left the room then delete room");
-          this.send_leaveRoom_status(true);
         }else{
           this.props.history.replace("/");
         }
@@ -156,6 +164,7 @@ class Room extends Component {
         console.log('error',err);
       }
     });
+    this.send_leaveRoom_status(true);
   };
 
   handleLeaveRoom = () =>{
@@ -163,19 +172,6 @@ class Room extends Component {
     toast.error("REDIRECTED TO HOMEPAGE");
     this.props.history.replace("/");
     return <h1></h1>
-  }
- 
-  send_leaveRoom_status = (e) => {
-    console.log("inside", e)
-    const {chatSocket, leaveRoomStatus} = this.state;
-    console.log("E",e);
-      chatSocket.send(
-        JSON.stringify({
-          message: "",
-          playPausemessage: "",
-          leaveRoom: e,
-        })
-    );
   }
 
   handlegetCurrentSong = async () => {
@@ -192,11 +188,11 @@ class Room extends Component {
       if (
         ex.response &&
         ex.response.status >= 400 &&
-        ex.response.status <= 500 &&
-        this.state.retrycount <= 2
+        ex.response.status <= 500
+        // this.state.retrycount <= 2
       ) {
-        this.setState({ retrycount: this.state.retrycount++ });
-        this.handlegetCurrentSong();
+        // this.setState({ retrycount: this.state.retrycount++ });
+        // 7017
       }
     }
   };
@@ -221,8 +217,48 @@ class Room extends Component {
         toast.error("Error Posting link / Try Another Song");
       }
     }
+    this.send_songUpdate(true);
   };
 
+  // handlepostsong = async () => {
+  //   console.log("posting song")
+  //   const post = {
+  //     ytlink: this.state.postinput,
+  //     roomCode: this.state.roomCode,
+  //   };
+  //   try {
+  //     await axios.post(`/youtube/getlink/`, post).then((res, err)=>{
+  //       if (res.status==200){
+  //         this.handlegetCurrentSong();
+  //         this.send_songUpdate(true);
+  //       }else{
+  //         console.log("error",err);
+  //       }
+  //     })
+  //     // if post successfull then send update song status via websocket
+
+  //   } catch (ex) {
+  //     if (
+  //       ex.response &&
+  //       ex.response.status >= 400 &&
+  //       ex.response.status <= 500
+  //     ) {
+  //       toast.error("Error Posting link / Try Another Song");
+  //     }
+  //   }
+  // };
+
+  send_playPause_status = (status) => {
+    const {chatSocket,updateSong, leaveRoomStatus} = this.state;
+    chatSocket.send(
+      JSON.stringify({
+        message: "",
+        playPausemessage: status,
+        leaveRoom: leaveRoomStatus,
+        updateSong: updateSong,
+      })
+    );
+  }
 
   handleplaypauseUpdateButton = async (event) => {
     let value = null;
@@ -246,14 +282,28 @@ class Room extends Component {
     this.send_playPause_status(event.type);
   };
 
-  send_playPause_status = (status) => {
-    const {chatSocket, leaveRoomStatus} = this.state;
-    chatSocket.send(
-      JSON.stringify({
-        message: "",
-        playPausemessage: status,
-        leaveRoom: leaveRoomStatus,
-      })
+  send_songUpdate = (res) => {
+    console.log("SENDING SONG UPDATE ", res);
+    const {chatSocket, leaveRoomStatus, updateSong} = this.state;
+      chatSocket.send(
+        JSON.stringify({
+          message: "",
+          playPausemessage: "",
+          leaveRoom: leaveRoomStatus,
+          updateSong: res,
+        })
+    );
+  }
+
+  send_leaveRoom_status = (e) => {
+    const {chatSocket, updateSong} = this.state;
+      chatSocket.send(
+        JSON.stringify({
+          message: "",
+          playPausemessage: "",
+          leaveRoom: e,
+          updateSong: updateSong,
+        })
     );
   }
 
