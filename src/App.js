@@ -21,16 +21,16 @@ class App extends Component {
 
   async componentDidMount() {
     try {
-      console.log("APP.js");
+      // console.log("APP.js");
       // const { data } = await axios.get(config.apiEndpointUserinRoom);
       await axios.get(config.apiEndpointUserinRoom).then((data) => {
-        console.log("after then res", data);
+        // console.log("after then res", data);
         this.setState({ roomCode: data.code });
-        console.log("in App.js data",data)
+        // console.log("in App.js data",data)
 
       });
     }catch (ex){
-      console.log("ASDFGHJJJJJ",this.state.roomCode);
+      // console.log("ASDFGHJJJJJ",this.state.roomCode);
     }
   }
 
