@@ -1,15 +1,15 @@
-from django.shortcuts import render, redirect
-from django.db import models
+# from django.shortcuts import render, redirect
+# from django.db import models
 from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView
 from .models import Room
 from .serializers import RoomSerializer, CreateRoomSerializer, UpdateRoomSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-import json
+# import json
 
 # from rest_framework.viewsets import ModelViewSet
-from rest_framework.views import APIView
+# from rest_framework.views import APIView
 from django.http import JsonResponse
 
 
@@ -148,7 +148,7 @@ def GetRoomView(request, code):  # this core parameter coming from url
             data["ishost"] = (
                 request.session.session_key == queryset[0].host
             )  # added extra field to send data to react
-            serializer = RoomSerializer(queryset, many=True)
+            # serializer = RoomSerializer(queryset, many=True)
             return Response(data, status=status.HTTP_200_OK)
         else:
             print("ELSE POP", request.session.pop("Room_code"))
