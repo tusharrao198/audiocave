@@ -34,7 +34,7 @@ class Room extends Component {
 
   async componentDidMount() {
     const { roomCode } = this.props.match.params;
-    console.log("rooo", roomCode)
+    // console.log("rooo", roomCode)
 
     let chatSocket=null;
 
@@ -46,17 +46,13 @@ class Room extends Component {
     }
 
     createSocket().then(_=>{
-      console.log("created socket", _)
+      // console.log("created socket", _)
       this.setState({chatSocket: _});
     })
 
     chatSocket.onmessage = async (e) => {
       const data = JSON.parse(e.data);
       this.handleshowdata(data);
-    };
-
-    chatSocket.onclose = async(e) => {
-      console.error("Chat socket closed unexpectedly");
     };
 
     document.querySelector("#chat-message-input").focus();
@@ -80,7 +76,6 @@ class Room extends Component {
     };    
 
     this.handleRoomData();
-    this.handlegetCurrentSong();
     console.log("componentDidMount called");
   }
 
@@ -95,9 +90,7 @@ class Room extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (prevState.roomCode !== this.state.roomCode) {
       if (this.state.roomCode === null) {
-        console.log("pokemons state has changed.");
         alert(`ROOM DELETED BY HOST , LEAVE ROOM !`);
-        // toast.error("ROOM DELETED BY HOST");
         window.location.reload();
       } else {
         window.location.reload();
@@ -112,9 +105,8 @@ class Room extends Component {
   }
 
   handleRoomData = async () => {
-    console.log("After condiition from url", this.state.roomCode);
-    const { roomCode } = this.state;
-    console.log("CODEFROM URL/PARAMS START ", roomCode);
+    // const { roomCode } = this.state;
+    const { roomCode } = this.props.match.params;
     try {
       if (roomCode !== null) {
         const { data } = await axios.get(
@@ -129,6 +121,7 @@ class Room extends Component {
           songurl: data.songurl,
         });
         console.log("ISHOST", this.state.isHost);
+        this.handlegetCurrentSong();
       } else {
         //Room Code is Null
         this.props.history.replace("/");
@@ -161,7 +154,7 @@ class Room extends Component {
         ex.response &&
         ex.response.status >= 400 &&
         ex.response.status <= 500 &&
-        this.state.retrycount <= 10
+        this.state.retrycount <= 2
       ) {
         this.setState({ retrycount: this.state.retrycount++ });
         this.handlegetCurrentSong();
@@ -170,6 +163,7 @@ class Room extends Component {
   };
 
   handlepostsong = async () => {
+    console.log("posting song")
     const post = {
       ytlink: this.state.postinput,
       roomCode: this.state.roomCode,
@@ -183,7 +177,7 @@ class Room extends Component {
         ex.response.status >= 400 &&
         ex.response.status <= 500
       ) {
-        toast.error("Error Posting link");
+        toast.error("Error Posting link / Try Another Song");
       }
     }
   };
@@ -230,12 +224,13 @@ class Room extends Component {
   };
 
   handleplaypauseUpdateButton = async (event) => {
+    console.log("check mute", event);
     let value = null;
     if (event.type === "play") {
-      console.log("PLAY SEND");
+      // console.log("PLAY SEND");
       value = true;
     } else {
-      console.log("pause send");
+      // console.log("pause send");
       value = false;
     }
     const post = {
@@ -377,6 +372,9 @@ class Room extends Component {
   }
 
   componentWillUnmount() {
+    this.state.chatSocket.onclose = async(e) => {
+      console.error("Chat socket closed unexpectedly");
+    };
     console.log("componentWillUnmount called");
     console.log("componentWillUnmount called done");
   }

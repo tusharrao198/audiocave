@@ -20,9 +20,12 @@ class App extends Component {
   };
 
   async componentDidMount() {
-    const { data } = await axios.get(config.apiEndpointUserinRoom);
-    this.setState({ roomCode: data.code });
-    const { roomCode } = this.state;
+    try {
+      const { data } = await axios.get(config.apiEndpointUserinRoom);
+      this.setState({ roomCode: data.code });
+    }catch (ex){
+      console.log(this.state.roomCode);
+    }
   }
 
   handleredirectSession = () => {

@@ -3,21 +3,6 @@ import axios from "axios";
 import config from "../services/config.json";
 import { toast } from "react-toastify";
 import { Redirect, Route, Switch, Link } from "react-router-dom";
-import {
-  Card,
-  Button,
-  Grid,
-  Typography,
-  TextField,
-  IconButton,
-  LinearProgress,
-} from "@material-ui/core";
-import PlayArrowIcon from "@material-ui/icons/PlayArrow";
-import PauseIcon from "@material-ui/icons/Pause";
-import SkipNextIcon from "@material-ui/icons/SkipNext";
-// import { createMuiTheme, ThemeProvider } from "@material-ui/core";
-// import AudioPlayer from "material-ui-audio-player";
-// import { makeStyles, Box, Paper } from "@material-ui/core";
 import AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
 
@@ -26,7 +11,7 @@ export default function MusicPlayer(props) {
   var player = useRef();
 
   function Audiofunction(play){
-    console.log("type from backend", play);
+    // console.log("type from backend", play);
     if (play==="play") {
       player.current.audio.current.play();
     } else {
@@ -35,10 +20,18 @@ export default function MusicPlayer(props) {
     return <h1></h1>
   };
 
+  function muted_(event){
+    console.log("muted_ called", event)
+  }
+
   return (
     <div className="App">
       <AudioPlayer
         autoplay={false}
+        loop={false}
+        autoPlayAfterSrcChange={false}
+        hasDefaultKeyBindings={true}
+        muted={muted_}
         src={props.song_url}
         onPlay={props.playpauseUpdate}
         onPause={props.playpauseUpdate}
@@ -51,3 +44,20 @@ export default function MusicPlayer(props) {
   );
   
 }
+
+// import {
+//   Card,
+//   Button,
+//   Grid,
+//   Typography,
+//   TextField,
+//   IconButton,
+//   LinearProgress,
+// } from "@material-ui/core";
+// import PlayArrowIcon from "@material-ui/icons/PlayArrow";
+// import PauseIcon from "@material-ui/icons/Pause";
+// import SkipNextIcon from "@material-ui/icons/SkipNext";
+// import { createMuiTheme, ThemeProvider } from "@material-ui/core";
+// import AudioPlayer from "material-ui-audio-player";
+// import { makeStyles, Box, Paper } from "@material-ui/core";
+
