@@ -21,23 +21,30 @@ class App extends Component {
 
   async componentDidMount() {
     try {
-      const { data } = await axios.get(config.apiEndpointUserinRoom);
-      this.setState({ roomCode: data.code });
+      console.log("APP.js");
+      // const { data } = await axios.get(config.apiEndpointUserinRoom);
+      await axios.get(config.apiEndpointUserinRoom).then((data) => {
+        console.log("after then res", data);
+        this.setState({ roomCode: data.code });
+        console.log("in App.js data",data)
+
+      });
     }catch (ex){
-      console.log(this.state.roomCode);
+      console.log("ASDFGHJJJJJ",this.state.roomCode);
     }
   }
 
   handleredirectSession = () => {
-    if (this.state.roomCode !== null) {
+    if (this.state.roomCode !== null && this.state.roomCode !== undefined) {
       alert("Session found!");
       return <Redirect to={`/room/${this.state.roomCode}`} />;
     } else {
       return <Homepage />;
     }
   };
-  //
+  
   clearRoomCode = (code_) => {
+    console.log("code_ in App.js", code_);
     this.setState({
       roomCode: code_,
     });
