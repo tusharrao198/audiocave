@@ -9,7 +9,7 @@ import "../index.css";
 import CreateRoom from "./createroom";
 import MusicPlayer from "./musicplayer";
 import { Redirect, Route, Switch, Link } from "react-router-dom";
-
+import ChatRoom from './chatroom';
 
 class Room extends Component {
   state = {
@@ -27,7 +27,7 @@ class Room extends Component {
     bgimage: null,
     send_status: null,
     messages: [],
-    playpausestatus: null,
+    newmessage: null,
     chatSocket: null,
     playPausemessage: "",
     leaveRoomStatus: false,
@@ -49,6 +49,10 @@ class Room extends Component {
       // console.log("created socket", _)
       this.setState({chatSocket: _});
     })
+
+    chatSocket.onclose = async(e) => {
+      console.error("Chat socket closed unexpectedly");
+    };
 
     chatSocket.onmessage = async (e) => {
       const data = JSON.parse(e.data);
@@ -220,33 +224,33 @@ class Room extends Component {
     this.send_songUpdate(true);
   };
 
-  // handlepostsong = async () => {
-  //   console.log("posting song")
-  //   const post = {
-  //     ytlink: this.state.postinput,
-  //     roomCode: this.state.roomCode,
-  //   };
-  //   try {
-  //     await axios.post(`/youtube/getlink/`, post).then((res, err)=>{
-  //       if (res.status==200){
-  //         this.handlegetCurrentSong();
-  //         this.send_songUpdate(true);
-  //       }else{
-  //         console.log("error",err);
-  //       }
-  //     })
-  //     // if post successfull then send update song status via websocket
+  handlepostsong = async () => {
+    console.log("posting song")
+    const post = {
+      ytlink: this.state.postinput,
+      roomCode: this.state.roomCode,
+    };
+    try {
+      await axios.post(`/youtube/getlink/`, post).then((res, err)=>{
+        if (res.status==200){
+          this.handlegetCurrentSong();
+          this.send_songUpdate(true);
+        }else{
+          console.log("error",err);
+        }
+      })
+      // if post successfull then send update song status via websocket
 
-  //   } catch (ex) {
-  //     if (
-  //       ex.response &&
-  //       ex.response.status >= 400 &&
-  //       ex.response.status <= 500
-  //     ) {
-  //       toast.error("Error Posting link / Try Another Song");
-  //     }
-  //   }
-  // };
+    } catch (ex) {
+      if (
+        ex.response &&
+        ex.response.status >= 400 &&
+        ex.response.status <= 500
+      ) {
+        toast.error("Error Posting link / Try Another Song");
+      }
+    }
+  };
 
   send_playPause_status = (status) => {
     const {chatSocket,updateSong, leaveRoomStatus} = this.state;
@@ -307,6 +311,20 @@ class Room extends Component {
     );
   }
 
+  handleNewUserMessage = async(e) => {
+    const {chatSocket, messages, leaveRoomStatus, updateSong} = this.state;
+    this.setState({messages: [...messages, e]})
+    this.setState({newmessage: e});
+    chatSocket.send(
+      JSON.stringify({
+        message: e,
+        playPausemessage: "",
+        leaveRoom: leaveRoomStatus,
+        updateSong: updateSong,
+      })
+    );
+  }
+
   render() {
     const {
       roomCode,
@@ -328,6 +346,7 @@ class Room extends Component {
           backgroundRepeat: "no-repeat",
         }}
       >
+        <ChatRoom handleNewUserMessage={this.handleNewUserMessage} newmessage={this.state.newmessage}/>
         <h3>
           <strong>
             RoomCode: {roomCode} || {isHost ? "HOST" : "USER"}
