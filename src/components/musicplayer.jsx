@@ -20,9 +20,9 @@ export default function MusicPlayer(props) {
     return <h1></h1>
   };
 
-  function muted_(event){
-    console.log("muted_ called", event)
-  }
+  // function muted_(event){
+  //   console.log("muted_ called", event)
+  // }
 
   return (
     <div className="App">
@@ -31,7 +31,7 @@ export default function MusicPlayer(props) {
         loop={false}
         autoPlayAfterSrcChange={false}
         hasDefaultKeyBindings={true}
-        muted={muted_}
+        // muted={muted_}
         src={props.song_url}
         onPlay={props.playpauseUpdate}
         onPause={props.playpauseUpdate}

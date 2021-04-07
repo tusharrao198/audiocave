@@ -14,10 +14,10 @@ import { Redirect, Route, Switch, Link } from "react-router-dom";
 class Room extends Component {
   state = {
     guest_can_pause: false,
-    votes_count_to_skip: 2,
+    // votes_count_to_skip: 2,
     isHost: false,
     roomCode: this.props.match.params.roomCode,
-    showSettings: false,
+    // showSettings: false,
     song_info: {},
     song: null,
     songurl: null,
@@ -30,14 +30,14 @@ class Room extends Component {
     playpausestatus: null,
     chatSocket: null,
     playPausemessage: null,
+    leaveRoomStatus: false,
+    updateSong: false,
   };
 
   async componentDidMount() {
     const { roomCode } = this.props.match.params;
     // console.log("rooo", roomCode)
-
     let chatSocket=null;
-
     async function createSocket(){
       chatSocket = new WebSocket(
         "ws://" + window.location.host + "/ws/chat/" + roomCode + "/"
@@ -52,6 +52,7 @@ class Room extends Component {
 
     chatSocket.onmessage = async (e) => {
       const data = JSON.parse(e.data);
+      // console.log("data received",data);
       this.handleshowdata(data);
     };
 
@@ -70,6 +71,7 @@ class Room extends Component {
         JSON.stringify({
           message: message,
           playPausemessage: "",
+          leaveRoom: this.state.leaveRoomStatus,
         })
       );
       messageInputDom.value = "";
@@ -85,6 +87,12 @@ class Room extends Component {
     node.appendChild(textnode);
     document.getElementById("chat-log").appendChild(node);
     this.setState({playPausemessage : e.playPausemessage});
+    try{
+      this.setState({leaveRoomStatus : e.leaveRoom});
+    }catch(ex){
+      console.log("cleared")
+    }
+    // this.setState({updateSong : e.updateSong});
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -102,15 +110,16 @@ class Room extends Component {
     if (prevState.songurl !== this.state.songurl) {
       this.handlegetCurrentSong();
     }
+    if (prevState.leaveRoomStatus !== this.state.leaveRoomStatus) {
+      this.handleLeaveRoom();
+    }  
   }
 
   handleRoomData = async () => {
-    // const { roomCode } = this.state;
-    const { roomCode } = this.props.match.params;
     try {
-      if (roomCode !== null) {
+      if (this.state.roomCode !== null) {
         const { data } = await axios.get(
-          config.apiEndpointgetRoom + `${roomCode}`
+          config.apiEndpointgetRoom + `${this.state.roomCode}`
         );
         this.setState({
           guest_can_pause: data.guest_can_pause,
@@ -123,7 +132,7 @@ class Room extends Component {
         console.log("ISHOST", this.state.isHost);
         this.handlegetCurrentSong();
       } else {
-        //Room Code is Null
+        console.log("//Room Code is Null");
         this.props.history.replace("/");
       }
     } catch (ex) {
@@ -134,10 +143,40 @@ class Room extends Component {
   };
 
   handlBackButtonPress = async () => {
-    const { data } = await axios.post(config.apiEndpointLeaveRoom);
-    this.props.leaveRoomCallback(null);
-    this.props.history.replace("/");
+    await axios.post(config.apiEndpointLeaveRoom).then((data, err)=> {
+      if(data.status==200){
+        this.props.leaveRoomCallback(null);
+        if (this.state.isHost){ // if host left the room then delete room
+          console.log("// if host left the room then delete room");
+          this.send_leaveRoom_status(true);
+        }else{
+          this.props.history.replace("/");
+        }
+      }else {
+        console.log('error',err);
+      }
+    });
   };
+
+  handleLeaveRoom = () =>{
+    console.log("called handleLeaveRoom");
+    toast.error("REDIRECTED TO HOMEPAGE");
+    this.props.history.replace("/");
+    return <h1></h1>
+  }
+ 
+  send_leaveRoom_status = (e) => {
+    console.log("inside", e)
+    const {chatSocket, leaveRoomStatus} = this.state;
+    console.log("E",e);
+      chatSocket.send(
+        JSON.stringify({
+          message: "",
+          playPausemessage: "",
+          leaveRoom: e,
+        })
+    );
+  }
 
   handlegetCurrentSong = async () => {
     try {
@@ -171,6 +210,8 @@ class Room extends Component {
     try {
       const { data } = await axios.post(`/youtube/getlink/`, post);
       this.handlegetCurrentSong();
+      // if post successfull then send update song status via websocket
+
     } catch (ex) {
       if (
         ex.response &&
@@ -182,49 +223,8 @@ class Room extends Component {
     }
   };
 
-  handleShowSettingsUpdate = (value) => {
-    this.setState({
-      showSettings: value,
-    });
-  };
-
-  renderSettings() {
-    return (
-      <div className="container">
-        <div className="container-fluid">
-          <CreateRoom
-            update={true}
-            votes_count_to_skip={this.state.votes_count_to_skip}
-            guest_can_pause={this.state.guest_can_pause}
-            roomCode={this.state.roomCode}
-            updateCallback={this.handleRoomData}
-          />
-        </div>
-        <button
-          className="btn btn-primary btn-sm"
-          onClick={() => this.handleShowSettingsUpdate(false)}
-        >
-          Close
-        </button>
-      </div>
-    );
-  }
-
-  renderSettingsButton = () => {
-    return (
-      <div className="container">
-        <button
-          className="btn btn-primary btn-sm"
-          onClick={() => this.handleShowSettingsUpdate(true)}
-        >
-          Settings
-        </button>
-      </div>
-    );
-  };
 
   handleplaypauseUpdateButton = async (event) => {
-    console.log("check mute", event);
     let value = null;
     if (event.type === "play") {
       // console.log("PLAY SEND");
@@ -247,30 +247,23 @@ class Room extends Component {
   };
 
   send_playPause_status = (status) => {
-    const {chatSocket} = this.state;
+    const {chatSocket, leaveRoomStatus} = this.state;
     chatSocket.send(
       JSON.stringify({
         message: "",
         playPausemessage: status,
+        leaveRoom: leaveRoomStatus,
       })
     );
   }
 
   render() {
     const {
-      guest_can_pause,
       roomCode,
-      votes_count_to_skip,
       isHost,
       showSettings,
-      song_info,
-      song,
-      songurl,
-      postinput,
-      send_status,
       is_playing,
       bgimage,
-      playPausemessage
     } = this.state;
     if (showSettings) {
       return this.renderSettings();
@@ -299,8 +292,8 @@ class Room extends Component {
                 song={this.state.song}
                 songurl={this.state.songurl}
                 roomCode={this.state.roomCode}
-                play={playPausemessage}
-                guest_can_pause={guest_can_pause}
+                play={this.state.playPausemessage}
+                guest_can_pause={this.state.guest_can_pause}
                 isHost={isHost}
                 send_status = {this.state.send_status}
                 {...this.state.song_info}
@@ -333,10 +326,10 @@ class Room extends Component {
             </div>
           </div>
         </div>
-        <div>
+        {/* <div>
           <strong>Votes: {votes_count_to_skip}</strong>
-        </div>
-        {isHost ? this.renderSettingsButton() : null}
+        </div> */}
+        {/* {isHost ? this.renderSettingsButton() : null} */}
         <button
           className="btn btn-danger btn-sm"
           onClick={this.handlBackButtonPress}
@@ -372,12 +365,53 @@ class Room extends Component {
   }
 
   componentWillUnmount() {
+    console.log("componentWillUnmount called");
     this.state.chatSocket.onclose = async(e) => {
       console.error("Chat socket closed unexpectedly");
     };
-    console.log("componentWillUnmount called");
     console.log("componentWillUnmount called done");
   }
 }
 
 export default Room;
+
+  // handleShowSettingsUpdate = (value) => {
+  //   this.setState({
+  //     showSettings: value,
+  //   });
+  // };
+
+  // renderSettings() {
+  //   return (
+  //     <div className="container">
+  //       <div className="container-fluid">
+  //         <CreateRoom
+  //           update={true}
+  //           votes_count_to_skip={this.state.votes_count_to_skip}
+  //           guest_can_pause={this.state.guest_can_pause}
+  //           roomCode={this.state.roomCode}
+  //           updateCallback={this.handleRoomData}
+  //         />
+  //       </div>
+  //       <button
+  //         className="btn btn-primary btn-sm"
+  //         onClick={() => this.handleShowSettingsUpdate(false)}
+  //       >
+  //         Close
+  //       </button>
+  //     </div>
+  //   );
+  // }
+
+  // renderSettingsButton = () => {
+  //   return (
+  //     <div className="container">
+  //       <button
+  //         className="btn btn-primary btn-sm"
+  //         onClick={() => this.handleShowSettingsUpdate(true)}
+  //       >
+  //         Settings
+  //       </button>
+  //     </div>
+  //   );
+  // };
