@@ -22,21 +22,34 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # print("DATA received", text_data_json)
         message = text_data_json["message"]
         playPausemessage = text_data_json["playPausemessage"]
+        leaveRoom = text_data_json["leaveRoom"]
         try:
-            leaveRoom = text_data_json["leaveRoom"]
+            updateSong = text_data_json["updateSong"]
         except:
             pass
         # print("messages", message)
         # Send message to room group
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                "type": "chat_message",
-                "message": message,
-                "playPausemessage": playPausemessage,
-                "leaveRoom": leaveRoom,
-            },
-        )
+        try:
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "chat_message",
+                    "message": message,
+                    "playPausemessage": playPausemessage,
+                    "leaveRoom": leaveRoom,
+                    "updateSong": updateSong,
+                },
+            )
+        except:
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "chat_message",
+                    "message": message,
+                    "playPausemessage": playPausemessage,
+                    "leaveRoom": leaveRoom,
+                },
+            )
         # print("SEND MESSAGES", self.room_group_name)
 
     # Receive message from room group
@@ -44,15 +57,41 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = event["message"]
         playPausemessage = event["playPausemessage"]
         leaveRoom = event["leaveRoom"]
-        print("receive messages from ", message, "and playPausemessage = ", playPausemessage,"leaveRoom = ", leaveRoom)
 
+        try:
+            updateSong = event["updateSong"]
+            data_received = {
+                "message": message,
+                "playPausemessage": playPausemessage,
+                "leaveRoom": leaveRoom,
+                "updateSong": updateSong,
+            }
+        except:
+            data_received = {
+                "message": message,
+                "playPausemessage": playPausemessage,
+                "leaveRoom": leaveRoom,
+            }
+        print("data_recieved", data_received,"\n")
         # Send message to WebSocket
-        await self.send(
-            text_data=json.dumps(
-                {
-                    "message": message,
-                    "playPausemessage": playPausemessage,
-                    "leaveRoom": leaveRoom,
-                }
+        try:
+            await self.send(
+                text_data=json.dumps(
+                    {
+                        "message": message,
+                        "playPausemessage": playPausemessage,
+                        "leaveRoom": leaveRoom,
+                        "updateSong": updateSong,
+                    }
+                )
             )
-        )
+        except:
+            await self.send(
+                text_data=json.dumps(
+                    {
+                        "message": message,
+                        "playPausemessage": playPausemessage,
+                        "leaveRoom": leaveRoom,
+                    }
+                )
+            )
