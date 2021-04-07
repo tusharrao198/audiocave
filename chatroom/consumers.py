@@ -9,7 +9,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # Join room group
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
-        print("room_group_name", self.room_group_name)
+        # print("room_group_name", self.room_group_name)
         await self.accept()
 
     async def disconnect(self, close_code):
@@ -22,10 +22,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # print("DATA received", text_data_json)
         message = text_data_json["message"]
         playPausemessage = text_data_json["playPausemessage"]
-        # print("ASDF", playPausemessage)
-
+        try:
+            leaveRoom = text_data_json["leaveRoom"]
+        except:
+            pass
         # print("messages", message)
-
         # Send message to room group
         await self.channel_layer.group_send(
             self.room_group_name,
@@ -33,19 +34,25 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 "type": "chat_message",
                 "message": message,
                 "playPausemessage": playPausemessage,
+                "leaveRoom": leaveRoom,
             },
         )
-        print("SEND MESSAGES", self.room_group_name)
+        # print("SEND MESSAGES", self.room_group_name)
 
     # Receive message from room group
     async def chat_message(self, event):
         message = event["message"]
         playPausemessage = event["playPausemessage"]
-        print("receive messages from ", message, "and", playPausemessage)
+        leaveRoom = event["leaveRoom"]
+        print("receive messages from ", message, "and playPausemessage = ", playPausemessage,"leaveRoom = ", leaveRoom)
 
         # Send message to WebSocket
         await self.send(
             text_data=json.dumps(
-                {"message": message, "playPausemessage": playPausemessage}
+                {
+                    "message": message,
+                    "playPausemessage": playPausemessage,
+                    "leaveRoom": leaveRoom,
+                }
             )
         )
