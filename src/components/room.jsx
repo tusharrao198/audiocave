@@ -134,6 +134,7 @@ class Room extends Component {
         const { data } = await axios.get(
           config.apiEndpointgetRoom + `${this.state.roomCode}`
         );
+        console.log("in room.jsx ", data);
         this.setState({
           guest_can_pause: data.guest_can_pause,
           votes_count_to_skip: data.votes_count_to_skip,
@@ -156,27 +157,41 @@ class Room extends Component {
   };
 
   handlBackButtonPress = async () => {
-    await axios.post(config.apiEndpointLeaveRoom).then((data, err)=> {
-      if(data.status==200){
+    console.log("handlBackButtonPress called");
+    if (this.state.isHost){ // if host left the room then delete room
+      console.log("// if host left the room then delete room");
+      this.send_leaveRoom_status(true);
+    }
+    await axios.post(config.apiEndpointLeaveRoom).then((data)=> {
+      if(data.status === 200 || data.status === 201){
         this.props.leaveRoomCallback(null);
-        if (this.state.isHost){ // if host left the room then delete room
-          console.log("// if host left the room then delete room");
-        }else{
-          this.props.history.replace("/");
-        }
-      }else {
-        console.log('error',err);
+        this.props.history.replace("/");
+      }
+      else {
+        console.log('error in handlBackButtonPress');
       }
     });
-    this.send_leaveRoom_status(true);
   };
 
-  handleLeaveRoom = () =>{
-    console.log("called handleLeaveRoom");
-    toast.error("REDIRECTED TO HOMEPAGE");
-    this.props.history.replace("/");
-    return <h1></h1>
-  }
+  handleLeaveRoom = async() =>{
+    try {
+      await axios.post(config.apiEndpointLeaveRoom).then((res)=> {
+        if(res.status === 200 || res.status === 201 || res.status === 301){
+          this.props.leaveRoomCallback(null);
+          console.log("called handleLeaveRoom");
+          toast.error("REDIRECTED TO HOMEPAGE");
+          this.props.history.replace("/");
+        }else{
+          // toast.error("REDIRECTED TO HOMEPAGE");
+          this.props.history.replace("/");
+        }
+      });
+  }catch(ex){
+      this.props.leaveRoomCallback(null);
+      console.log("called handleLeaveRoom in catch er");
+      this.props.history.replace("/");
+    }
+  };
 
   handlegetCurrentSong = async () => {
     try {
@@ -199,29 +214,6 @@ class Room extends Component {
         // 7017
       }
     }
-  };
-
-  handlepostsong = async () => {
-    console.log("posting song")
-    const post = {
-      ytlink: this.state.postinput,
-      roomCode: this.state.roomCode,
-    };
-    try {
-      const { data } = await axios.post(`/youtube/getlink/`, post);
-      this.handlegetCurrentSong();
-      // if post successfull then send update song status via websocket
-
-    } catch (ex) {
-      if (
-        ex.response &&
-        ex.response.status >= 400 &&
-        ex.response.status <= 500
-      ) {
-        toast.error("Error Posting link / Try Another Song");
-      }
-    }
-    this.send_songUpdate(true);
   };
 
   handlepostsong = async () => {
@@ -435,6 +427,7 @@ class Room extends Component {
 
   componentWillUnmount() {
     console.log("componentWillUnmount called");
+    if (this.state.isHost){this.state.chatSocket.close();}
     this.state.chatSocket.onclose = async(e) => {
       console.error("Chat socket closed unexpectedly");
     };
