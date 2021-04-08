@@ -6,9 +6,8 @@ import { TextField, Button, Grid, Typography } from "@material-ui/core";
 import config from "../services/config.json";
 import { toast } from "react-toastify";
 import "../index.css";
-import CreateRoom from "./createroom";
+// import CreateRoom from "./createroom";
 import MusicPlayer from "./musicplayer";
-import { Redirect, Route, Switch, Link } from "react-router-dom";
 import ChatRoom from './chatroom';
 
 class Room extends Component {
@@ -195,7 +194,7 @@ class Room extends Component {
 
   handlegetCurrentSong = async () => {
     try {
-      const { data } = await axios.get(`/youtube/getlink/`);
+      const { data } = await axios.get(config.apigetYTLink);
       if (this.state.song !== data.song_name) {
         console.log("Current Song_info Added");
         this.setState({ song: data.song_name });
@@ -223,8 +222,8 @@ class Room extends Component {
       roomCode: this.state.roomCode,
     };
     try {
-      await axios.post(`/youtube/getlink/`, post).then((res, err)=>{
-        if (res.status==200){
+      await axios.post(config.apipostYTLink, post).then((res, err)=>{
+        if (res.status===200){
           this.handlegetCurrentSong();
           this.send_songUpdate(true);
         }else{
@@ -271,7 +270,7 @@ class Room extends Component {
       roomCode: this.state.roomCode,
     };
     try {
-      const { data } = await axios.patch("/youtube/update/", post);
+      const { data } = await axios.patch(config.apiYTUpdate, post);
     } catch (ex) {
       toast.error("Error Updating Room Details");
     }

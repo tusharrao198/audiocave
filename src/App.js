@@ -9,10 +9,11 @@ import JoinRoom from "./components/joinroom";
 import Room from "./components/room";
 import CreateRoom from "./components/createroom";
 import NotFound from "./components/notfound";
-import Navbar from "./components/navbar";
+// import Navbar from "./components/navbar";
 import Homepage from "./components/homepage";
 // import Background from "./static/images/wall3.jpg";
 import config from "./services/config.json";
+import swal from 'sweetalert';
 
 class App extends Component {
   state = {
@@ -21,24 +22,19 @@ class App extends Component {
 
   async componentDidMount() {
     try {
-      console.log("APP.js");
-      // const { data } = await axios.get(config.apiEndpointUserinRoom);
       await axios.get(config.apiEndpointUserinRoom).then((res) => {
-        // console.log("after then res", data);
         if (res.status === 200 || res.status === 301) {
-          console.log("res in app.js", res);
           this.setState({ roomCode: res.data.code });
-          console.log("in App.js data",this.state.roomCode);
         }
       });
     }catch (ex){
-      // console.log("ASDFGHJJJJJ",this.state.roomCode);
+      // console.log("roomCode",this.state.roomCode);
     } 
   }
 
   handleredirectSession = () => {
     if (this.state.roomCode !== null && this.state.roomCode !== undefined) {
-      alert("Session found!");
+      swal("Session found!");
       return <Redirect to={`/room/${this.state.roomCode}`} />;
     } else {
       return <Homepage />;
@@ -58,14 +54,15 @@ class App extends Component {
         <header
           className="App-header"
           style={{
-            backgroundImage: `url(https://user-images.githubusercontent.com/56690827/109695806-5d05fa00-7bb2-11eb-92c7-8acf6c7d55ac.jpg)`,
+// backgroundImage: `url(https://user-images.githubusercontent.com/56690827/109695806-5d05fa00-7bb2-11eb-92c7-8acf6c7d55ac.jpg)`,
+            backgroundImage: `url(https://user-images.githubusercontent.com/56690827/112964664-29dd6900-9166-11eb-813e-7159e71b4ea9.jpg)`,
             backgroundPosition: "center",
             backgroundSize: "cover",
             backgroundRepeat: "no-repeat",
           }}
         >
           <ToastContainer />
-          <Navbar />
+          {/* <Navbar /> */}
           <main className="container">
             <Switch>
               <Route

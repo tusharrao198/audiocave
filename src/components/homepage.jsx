@@ -10,7 +10,10 @@ class Homepage extends Component {
     return (
       <div className="container text-center justify-content-center">
         <div>
-          <h1>HOMEPAGE</h1>
+          <div>
+            <h1>Audiocave</h1>
+            <small>Listen Music Together</small>
+          </div>
           <Link to="/joinroom">
             <button className="btn btn-primary btn-sm">Join a Room</button>
           </Link>
