@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component} from "react";
 import "./App.css";
 import { Redirect, Route, Switch, Link } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -21,17 +21,19 @@ class App extends Component {
 
   async componentDidMount() {
     try {
-      // console.log("APP.js");
+      console.log("APP.js");
       // const { data } = await axios.get(config.apiEndpointUserinRoom);
-      await axios.get(config.apiEndpointUserinRoom).then((data) => {
+      await axios.get(config.apiEndpointUserinRoom).then((res) => {
         // console.log("after then res", data);
-        this.setState({ roomCode: data.code });
-        // console.log("in App.js data",data)
-
+        if (res.status === 200 || res.status === 301) {
+          console.log("res in app.js", res);
+          this.setState({ roomCode: res.data.code });
+          console.log("in App.js data",this.state.roomCode);
+        }
       });
     }catch (ex){
       // console.log("ASDFGHJJJJJ",this.state.roomCode);
-    }
+    } 
   }
 
   handleredirectSession = () => {
