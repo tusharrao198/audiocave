@@ -104,7 +104,7 @@ def JoinRoomView(request, *args, **kwargs):
     print("Joining CODE", code)
     queryset = Room.objects.filter(code=code)
     if queryset is not None:
-        room = queryset[0]
+        # room = queryset[0]
         request.session["Room_code"] = code
         return Response({"message": "Room Joined"}, status=status.HTTP_200_OK)
 
@@ -116,14 +116,24 @@ def JoinRoomView(request, *args, **kwargs):
 
 @api_view(["POST"])
 def UserLeaveRoomView(request):
+    print("called leave room")
+    code = request.session.get("Room_code")
+    # print("get session attached roomcode", code, "with session => ",request.session.session_key)
     if "Room_code" in request.session:
-        host_id = request.session.session_key
-        room = Room.objects.filter(host=host_id)
+        session_id = request.session.session_key
+        room = Room.objects.filter(code=code)
         if len(room) > 0:
-            room[0].delete()
-        return Response({"Message": "SUCCESS"}, status=status.HTTP_200_OK)
+            hostid = room[0].host
+            if (session_id == hostid):  # if host
+                request.session.pop("Room_code")
+                room[0].delete()
+                # print("success")
+            else: # if user
+                request.session.pop("Room_code")
+                # print("room code removed")
+        return Response({"Message": "success"}, status=status.HTTP_200_OK)
     return Response(
-        {"BAD REQUEST": "USER/You ALREADY LEFT"}, status=status.HTTP_404_NOT_FOUND
+        {"BAD REQUEST": "user/You left"}, status=status.HTTP_404_NOT_FOUND
     )
 
 
@@ -131,10 +141,10 @@ def UserLeaveRoomView(request):
 def UserinRoomView(request):
     if not request.session.exists(request.session.session_key):
         request.session.create()
-        print("CREATING IN USERIN ROOM VIEW")
+        # print("CREATING SESSION IN USERIN ROOM VIEW")
     code = request.session.get("Room_code")
-    print(f"Userinroom view called and code= {code}")
-    queryset = Room.objects.filter(code=code)
+    print(f"Userinroom view called and code= {code} and session = {request.session.session_key}")
+    # queryset = Room.objects.filter(code=code)
     return JsonResponse({"code": code}, status=status.HTTP_200_OK)
 
 
@@ -151,11 +161,13 @@ def GetRoomView(request, code):  # this core parameter coming from url
             # serializer = RoomSerializer(queryset, many=True)
             return Response(data, status=status.HTTP_200_OK)
         else:
-            print("ELSE POP", request.session.pop("Room_code"))
-            print("Deleting Session")
-            request.session.delete()
-            print("Deleted Session")
-    print("ROOM NOT FOUND IN GETROOMVIEW")
+            # print("ELSE POP", request.session.pop("Room_code"))
+            try:
+                request.session.delete()
+                # print("Deleted Session")
+            except Warning as w:
+                print("session already deleted")
+    # print("ROOM NOT FOUND IN GETROOMVIEW")
     return Response(
         {"BAD REQUEST": "ROOM LEFT BY USER"}, status=status.HTTP_404_NOT_FOUND
     )
