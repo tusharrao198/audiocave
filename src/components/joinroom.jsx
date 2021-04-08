@@ -14,13 +14,13 @@ class JoinRoom extends Component {
   handleroomButtonPressed = async () => {
     const roomCode = this.state.roomCode;
     try {
-      const { data: data } = await axios.post(config.apiEndpointJoinRoom, {
+      const { data } = await axios.post(config.apiEndpointJoinRoom, {
         code: roomCode,
       });
-      this.props.history.push(`${config.gotoRoom}${roomCode}`);
+      this.props.history.push(`${config.apigotoRoom}${roomCode}`);
     } catch (ex) {
       if (
-        (ex.response && ex.response.status >= 400) ||
+        (ex.response && ex.response.status >= 400) &&
         ex.response.status <= 500
       ) {
         toast.error("INVALID ROOM ID");

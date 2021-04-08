@@ -46,6 +46,7 @@ class CreateRoom extends Component {
   };
 
   handleRoomButtonPressed = async () => {
+    console.log("ASD called");
     const post_ = {
       votes_count_to_skip: this.state.votes_count_to_skip,
       guest_can_pause: this.state.guest_can_pause,
@@ -54,7 +55,8 @@ class CreateRoom extends Component {
       config.apiEndpointCreateRoom,
       post_
     );
-    this.props.history.push(`${config.gotoRoom}${data.code}`);
+    console.log("DFGGG",data);
+    this.props.history.push(`${config.apigotoRoom}${data.code}`);
   };
 
   handleUpdateButton = async () => {

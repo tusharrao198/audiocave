@@ -13,29 +13,20 @@ class ChatRoom extends Component {
 
     }
 
-    handleNewUserMessage = (newMessage) => {
-        this.setState((prevState) => {
-            return { messages: [...prevState.messages, newMessage] };
-        });
+    handleNewUserMessage = async(newMessage) => {
+        // this.setState({ messages: [...this.state.messages, newMessage]});
         this.props.handleNewUserMessage(newMessage);
         console.log("messages = ", this.state.messages);
-        if (this.props.newmessage !== null) {
-            this.setState((prevState) => {
-                return { messages: [...this.state.messages, this.props.newmessage] };
-            });
-            console.log("INDDDDDD");
-        }
     };
 
-    addUserMessage = () => {
-        console.log("ADD USER MESSAGE", this.props.newmessage);
-        this.setState((prevState) => {
-            return { messages: [...prevState.messages, this.props.newmessage] };
-        });
-        console.log("messages in addUserMessage = ", this.state.messages);
-    }
+    // addUserMessage = async() => {
+    //     console.log("ADD USER MESSAGE", this.props.this.props.newmessageRecieved);
+    //     addUserMessage(this.props.newmessageRecieved);
+    //     // this.setState({ messages: [...this.state.messages, this.props.newmessageRecieved]});
+    //     console.log("messages in addUserMessage = ", this.state.messages);
+    // }
 
-        render() {
+    render() {
         return (
             <div className="App">
                 <Widget
@@ -45,6 +36,9 @@ class ChatRoom extends Component {
                 // title="My new awesome title"
                 // subtitle="And my cool subtitle"
                 />
+                {/* {
+                    this.props.newmessageRecieved? this.addUserMessage(this.props.newmessageRecieved) : <h1></h1>
+                } */}
             </div>
         );
     } 
