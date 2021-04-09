@@ -88,19 +88,29 @@ class Room extends Component {
   }
 
   handleshowdata = async (e) => {
-    let node = document.createElement("p");
-    let textnode = document.createTextNode(e.message);
-    node.appendChild(textnode);
-    if (document.getElementById("chat-log") !==null){
-      document.getElementById("chat-log").appendChild(node);
-      try {
-        this.setState({playPausemessage : e.playPausemessage});
-        this.setState({leaveRoomStatus : e.leaveRoom});
-        this.setState({updateSong : e.updateSong});
-      }catch(ex) {
-      console.log("error in recieving", ex); 
-      }
-    }
+    this.setState({
+      playPausemessage : e.playPausemessage, 
+      leaveRoomStatus : e.leaveRoom,
+      updateSong : e.updateSong,
+      newmessage : e.message
+    });
+        // this.setState({leaveRoomStatus : e.leaveRoom});
+        // this.setState({updateSong : e.updateSong});
+        // this.setState({newmessage : e.message});
+    // let node = document.createElement("p");
+    // let textnode = document.createTextNode(e.message);
+    // node.appendChild(textnode);
+    // if (document.getElementById("chat-log") !==null){
+    //   document.getElementById("chat-log").appendChild(node);
+    //   try {
+    //     this.setState({playPausemessage : e.playPausemessage, });
+    //     // this.setState({leaveRoomStatus : e.leaveRoom});
+    //     // this.setState({updateSong : e.updateSong});
+    //     // this.setState({newmessage : e.message});
+    //   }catch(ex) {
+    //   console.log("error in recieving", ex); 
+    //   }
+    // }
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -133,7 +143,6 @@ class Room extends Component {
         const { data } = await axios.get(
           config.apiEndpointgetRoom + `${this.state.roomCode}`
         );
-        console.log("in room.jsx ", data);
         this.setState({
           guest_can_pause: data.guest_can_pause,
           votes_count_to_skip: data.votes_count_to_skip,
@@ -260,7 +269,7 @@ class Room extends Component {
     if (event.type === "play") {
       // console.log("PLAY SEND");
       value = true;
-    } else {
+    } else if (event.type === "pause") {
       // console.log("pause send");
       value = false;
     }
@@ -304,8 +313,8 @@ class Room extends Component {
 
   handleNewUserMessage = async(e) => {
     const {chatSocket, messages, leaveRoomStatus, updateSong} = this.state;
-    this.setState({messages: [...messages, e]})
-    this.setState({newmessage: e});
+    // this.setState({messages: [...messages, e]})
+    // this.setState({newmessage: e});
     chatSocket.send(
       JSON.stringify({
         message: e,
@@ -386,10 +395,6 @@ class Room extends Component {
             </div>
           </div>
         </div>
-        {/* <div>
-          <strong>Votes: {votes_count_to_skip}</strong>
-        </div> */}
-        {/* {isHost ? this.renderSettingsButton() : null} */}
         <button
           className="btn btn-danger btn-sm"
           onClick={this.handlBackButtonPress}
@@ -435,44 +440,3 @@ class Room extends Component {
 }
 
 export default Room;
-
-  // handleShowSettingsUpdate = (value) => {
-  //   this.setState({
-  //     showSettings: value,
-  //   });
-  // };
-
-  // renderSettings() {
-  //   return (
-  //     <div className="container">
-  //       <div className="container-fluid">
-  //         <CreateRoom
-  //           update={true}
-  //           votes_count_to_skip={this.state.votes_count_to_skip}
-  //           guest_can_pause={this.state.guest_can_pause}
-  //           roomCode={this.state.roomCode}
-  //           updateCallback={this.handleRoomData}
-  //         />
-  //       </div>
-  //       <button
-  //         className="btn btn-primary btn-sm"
-  //         onClick={() => this.handleShowSettingsUpdate(false)}
-  //       >
-  //         Close
-  //       </button>
-  //     </div>
-  //   );
-  // }
-
-  // renderSettingsButton = () => {
-  //   return (
-  //     <div className="container">
-  //       <button
-  //         className="btn btn-primary btn-sm"
-  //         onClick={() => this.handleShowSettingsUpdate(true)}
-  //       >
-  //         Settings
-  //       </button>
-  //     </div>
-  //   );
-  // };
