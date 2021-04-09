@@ -1,14 +1,11 @@
 import React, { Component } from "react";
-// import http from '../services/httpservice';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import axios from "axios";
 import { TextField, Button, Grid, Typography } from "@material-ui/core";
 import config from "../services/config.json";
 import { toast } from "react-toastify";
 import "../index.css";
-// import CreateRoom from "./createroom";
 import MusicPlayer from "./musicplayer";
-// import ChatRoom from './chatroom';
 import swal from 'sweetalert';
 import { Widget, addResponseMessage, addUserMessage } from "react-chat-widget";
 import "react-chat-widget/lib/styles.css";
@@ -17,10 +14,8 @@ import "react-chat-widget/lib/styles.css";
 class Room extends Component {
   state = {
     guest_can_pause: false,
-    // votes_count_to_skip: 2,
     isHost: false,
     roomCode: this.props.match.params.roomCode,
-    // showSettings: false,
     song_info: {},
     song: null,
     songurl: null,
@@ -32,7 +27,7 @@ class Room extends Component {
     messages: [],
     newmessage: null,
     chatSocket: null,
-    playPausemessage: "",
+    playPausemessage: false,
     leaveRoomStatus: false,
     updateSong: false,
     sender: false,
@@ -65,13 +60,12 @@ class Room extends Component {
 
     if (roomCode !== null && roomCode !== undefined) {
       this.handleRoomData();
-      console.log("componentDidMount called");
+      // console.log("componentDidMount called");
     }
   }
 
   handleshowdata = async (e) => {
     const {sender} =this.state;
-    console.log("SENDER",sender);
     if (e.message !==null && sender===false){
       addResponseMessage(e.message);      
     }
@@ -79,11 +73,9 @@ class Room extends Component {
       playPausemessage: e.playPausemessage,
       leaveRoomStatus: e.leaveRoom,
       updateSong: e.updateSong,
-      // newmessage: e.message,
     });
     if (sender){
       this.setState({ sender: false });
-      console.log("SENDER after", sender);
     }
   };
 
@@ -97,7 +89,7 @@ class Room extends Component {
       }
     }
     if (prevState.is_playing !== this.state.is_playing) {
-      console.log("isPlaying updated by interval ", this.state.is_playing);
+      // console.log("isPlaying updated by interval ", this.state.is_playing);
     }
     if (prevState.songurl !== this.state.songurl) {
       this.handlegetCurrentSong();
@@ -106,16 +98,16 @@ class Room extends Component {
       this.handleLeaveRoom();
     }
     if (prevState.updateSong !== this.state.updateSong) {
-      console.log(
-        "updatesong state changed from ",
-        prevState.updateSong,
-        "to => ",
-        this.state.updateSong
-      );
+      // console.log(
+      //   "updatesong state changed from ",
+      //   prevState.updateSong,
+      //   "to => ",
+      //   this.state.updateSong
+      // );
       this.handlegetCurrentSong();
     }
     if (prevState.newmessage !== this.state.newmessage) {
-      console.log("newmessage update");
+      // console.log("newmessage update");
     }
   }
 
@@ -136,11 +128,11 @@ class Room extends Component {
         console.log("ISHOST", this.state.isHost);
         this.handlegetCurrentSong();
       } else {
-        console.log("//Room Code is Null");
+        // console.log("//Room Code is Null");
         this.props.history.replace("/");
       }
     } catch (ex) {
-      toast.error("REDIRECTED TO HOMEPAGE");
+      // toast.error("REDIRECTED TO HOMEPAGE");
       this.props.leaveRoomCallback(null);
       this.props.history.replace("/");
     }
@@ -157,7 +149,7 @@ class Room extends Component {
         this.props.leaveRoomCallback(null);
         this.props.history.replace("/");
       } else {
-        console.log("error in handlBackButtonPress");
+        // console.log("error in handlBackButtonPress");
       }
     });
   };
@@ -167,7 +159,7 @@ class Room extends Component {
       await axios.post(config.apiEndpointLeaveRoom).then((res) => {
         if (res.status === 200 || res.status === 201 || res.status === 301) {
           this.props.leaveRoomCallback(null);
-          console.log("called handleLeaveRoom");
+          // console.log("called handleLeaveRoom");
           toast.error("REDIRECTED TO HOMEPAGE");
           this.props.history.replace("/");
         } else {
@@ -177,7 +169,7 @@ class Room extends Component {
       });
     } catch (ex) {
       this.props.leaveRoomCallback(null);
-      console.log("called handleLeaveRoom in catch er");
+      // console.log("called handleLeaveRoom in catch er");
       this.props.history.replace("/");
     }
   };
@@ -206,7 +198,7 @@ class Room extends Component {
   };
 
   handlepostsong = async () => {
-    console.log("posting song");
+    // console.log("posting song");
     const post = {
       ytlink: this.state.postinput,
       roomCode: this.state.roomCode,
@@ -217,7 +209,7 @@ class Room extends Component {
           this.handlegetCurrentSong();
           this.send_songUpdate(true);
         } else {
-          console.log("error", err);
+          // console.log("error", err);
         }
       });
       // if post successfull then send update song status via websocket
@@ -236,7 +228,7 @@ class Room extends Component {
     const { chatSocket, updateSong, leaveRoomStatus } = this.state;
     chatSocket.send(
       JSON.stringify({
-        message: "",
+        message: null,
         playPausemessage: status,
         leaveRoom: leaveRoomStatus,
         updateSong: updateSong,
@@ -263,16 +255,16 @@ class Room extends Component {
     } catch (ex) {
       toast.error("Error Updating Room Details");
     }
-    this.send_playPause_status(event.type);
+    this.send_playPause_status(value);
   };
 
   send_songUpdate = (res) => {
     console.log("SENDING SONG UPDATE ", res);
-    const { chatSocket, leaveRoomStatus, updateSong } = this.state;
+    const { chatSocket, leaveRoomStatus} = this.state;
     chatSocket.send(
       JSON.stringify({
-        message: "",
-        playPausemessage: "",
+        message: null,
+        playPausemessage: null,
         leaveRoom: leaveRoomStatus,
         updateSong: res,
       })
@@ -283,8 +275,8 @@ class Room extends Component {
     const { chatSocket, updateSong } = this.state;
     chatSocket.send(
       JSON.stringify({
-        message: "",
-        playPausemessage: "",
+        message: null,
+        playPausemessage: null,
         leaveRoom: e,
         updateSong: updateSong,
       })
@@ -297,26 +289,16 @@ class Room extends Component {
     chatSocket.send(
       JSON.stringify({
         message: e,
-        playPausemessage: "",
+        playPausemessage: null,
         leaveRoom: leaveRoomStatus,
         updateSong: updateSong,
       })
     );
   };
 
-  // handleNewUserMessage = async (newMessage) => {
-  //   // this.setState({ messages: [...this.state.messages, newMessage]});
-  //   console.log(newMessage);
-  //   // addUserMessage("sa")
-  //   this.props.handleNewUserMessage(newMessage);
-  //   console.log("messages = ", this.state.messages);
-  // };
 
   render() {
     const { roomCode, isHost, is_playing, bgimage } = this.state;
-    // if (this.state.newmessage !== null) {
-    //   addResponseMessage(this.state.newmessage);
-    // }
     return (
       <div
         className="container text-center justify-content-center bgroom"
@@ -327,10 +309,6 @@ class Room extends Component {
           backgroundRepeat: "no-repeat",
         }}
       >
-        {/* <ChatRoom
-          handleNewUserMessage={this.handleNewUserMessage}
-          newmessage={this.state.newmessage}
-        /> */}
         <Widget
           handleNewUserMessage={this.handleNewUserMessage}
           autofocus={true}
@@ -356,6 +334,7 @@ class Room extends Component {
                 isHost={isHost}
                 send_status={this.state.send_status}
                 {...this.state.song_info}
+                song_status={true}
                 playpauseUpdate={this.handleplaypauseUpdateButton}
               />
             </div>
@@ -403,7 +382,7 @@ class Room extends Component {
     this.state.chatSocket.onclose = async (e) => {
       console.error("Chat socket closed unexpectedly");
     };
-    console.log("componentWillUnmount called done");
+    // console.log("componentWillUnmount called done");
   }
 }
 
