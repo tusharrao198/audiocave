@@ -8,7 +8,11 @@ import { toast } from "react-toastify";
 import "../index.css";
 // import CreateRoom from "./createroom";
 import MusicPlayer from "./musicplayer";
-import ChatRoom from './chatroom';
+// import ChatRoom from './chatroom';
+import swal from 'sweetalert';
+import { Widget, addResponseMessage, addUserMessage } from "react-chat-widget";
+import "react-chat-widget/lib/styles.css";
+
 
 class Room extends Component {
   state = {
@@ -31,25 +35,25 @@ class Room extends Component {
     playPausemessage: "",
     leaveRoomStatus: false,
     updateSong: false,
+    sender: false,
   };
 
   async componentDidMount() {
     const { roomCode } = this.props.match.params;
-    // console.log("rooo", roomCode)
-    let chatSocket=null;
-    async function createSocket(){
+    let chatSocket = null;
+    async function createSocket() {
       chatSocket = new WebSocket(
         "ws://" + window.location.host + "/ws/chat/" + roomCode + "/"
       );
-      return chatSocket
+      return chatSocket;
     }
 
-    createSocket().then(_=>{
+    createSocket().then((_) => {
       // console.log("created socket", _)
-      this.setState({chatSocket: _});
-    })
+      this.setState({ chatSocket: _ });
+    });
 
-    chatSocket.onclose = async(e) => {
+    chatSocket.onclose = async (e) => {
       console.error("Chat socket closed unexpectedly");
     };
 
@@ -59,64 +63,34 @@ class Room extends Component {
       this.handleshowdata(data);
     };
 
-    document.querySelector("#chat-message-input").focus();
-    document.querySelector("#chat-message-input").onkeyup = function (e) {
-      if (e.keyCode === 13) {
-        // enter, return
-        document.querySelector("#chat-message-submit").click();
-      }
-    };
-
-    document.querySelector("#chat-message-submit").onclick = (e) => {
-      const messageInputDom = document.querySelector("#chat-message-input");
-      const message = messageInputDom.value;
-      chatSocket.send(
-        JSON.stringify({
-          message: message,
-          playPausemessage: "",
-          leaveRoom: this.state.leaveRoomStatus,
-          updateSong: this.state.updateSong,
-        })
-      );
-      messageInputDom.value = "";
-    };    
-
     if (roomCode !== null && roomCode !== undefined) {
       this.handleRoomData();
       console.log("componentDidMount called");
-    } 
+    }
   }
 
   handleshowdata = async (e) => {
+    const {sender} =this.state;
+    console.log("SENDER",sender);
+    if (e.message !==null && sender===false){
+      addResponseMessage(e.message);      
+    }
     this.setState({
-      playPausemessage : e.playPausemessage, 
-      leaveRoomStatus : e.leaveRoom,
-      updateSong : e.updateSong,
-      newmessage : e.message
+      playPausemessage: e.playPausemessage,
+      leaveRoomStatus: e.leaveRoom,
+      updateSong: e.updateSong,
+      // newmessage: e.message,
     });
-        // this.setState({leaveRoomStatus : e.leaveRoom});
-        // this.setState({updateSong : e.updateSong});
-        // this.setState({newmessage : e.message});
-    // let node = document.createElement("p");
-    // let textnode = document.createTextNode(e.message);
-    // node.appendChild(textnode);
-    // if (document.getElementById("chat-log") !==null){
-    //   document.getElementById("chat-log").appendChild(node);
-    //   try {
-    //     this.setState({playPausemessage : e.playPausemessage, });
-    //     // this.setState({leaveRoomStatus : e.leaveRoom});
-    //     // this.setState({updateSong : e.updateSong});
-    //     // this.setState({newmessage : e.message});
-    //   }catch(ex) {
-    //   console.log("error in recieving", ex); 
-    //   }
-    // }
+    if (sender){
+      this.setState({ sender: false });
+      console.log("SENDER after", sender);
+    }
   };
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.roomCode !== this.state.roomCode) {
       if (this.state.roomCode === null) {
-        alert(`ROOM DELETED BY HOST , LEAVE ROOM !`);
+        swal(`ROOM DELETED BY HOST , LEAVE ROOM !`);
         window.location.reload();
       } else {
         window.location.reload();
@@ -132,9 +106,17 @@ class Room extends Component {
       this.handleLeaveRoom();
     }
     if (prevState.updateSong !== this.state.updateSong) {
-      console.log("updatesong state changed from ",prevState.updateSong , "to => ", this.state.updateSong);
+      console.log(
+        "updatesong state changed from ",
+        prevState.updateSong,
+        "to => ",
+        this.state.updateSong
+      );
       this.handlegetCurrentSong();
-    }  
+    }
+    if (prevState.newmessage !== this.state.newmessage) {
+      console.log("newmessage update");
+    }
   }
 
   handleRoomData = async () => {
@@ -165,36 +147,35 @@ class Room extends Component {
   };
 
   handlBackButtonPress = async () => {
-    console.log("handlBackButtonPress called");
-    if (this.state.isHost){ // if host left the room then delete room
-      console.log("// if host left the room then delete room");
+    // console.log("handlBackButtonPress called");
+    if (this.state.isHost) {
+      // if host left the room then delete room
       this.send_leaveRoom_status(true);
     }
-    await axios.post(config.apiEndpointLeaveRoom).then((data)=> {
-      if(data.status === 200 || data.status === 201){
+    await axios.post(config.apiEndpointLeaveRoom).then((data) => {
+      if (data.status === 200 || data.status === 201) {
         this.props.leaveRoomCallback(null);
         this.props.history.replace("/");
-      }
-      else {
-        console.log('error in handlBackButtonPress');
+      } else {
+        console.log("error in handlBackButtonPress");
       }
     });
   };
 
-  handleLeaveRoom = async() =>{
+  handleLeaveRoom = async () => {
     try {
-      await axios.post(config.apiEndpointLeaveRoom).then((res)=> {
-        if(res.status === 200 || res.status === 201 || res.status === 301){
+      await axios.post(config.apiEndpointLeaveRoom).then((res) => {
+        if (res.status === 200 || res.status === 201 || res.status === 301) {
           this.props.leaveRoomCallback(null);
           console.log("called handleLeaveRoom");
           toast.error("REDIRECTED TO HOMEPAGE");
           this.props.history.replace("/");
-        }else{
+        } else {
           // toast.error("REDIRECTED TO HOMEPAGE");
           this.props.history.replace("/");
         }
       });
-  }catch(ex){
+    } catch (ex) {
       this.props.leaveRoomCallback(null);
       console.log("called handleLeaveRoom in catch er");
       this.props.history.replace("/");
@@ -210,7 +191,7 @@ class Room extends Component {
         this.setState({ songurl: data.song_url });
         this.setState({ song_info: data });
         this.setState({ bgimage: data.image_url });
-      }          
+      }
     } catch (ex) {
       if (
         ex.response &&
@@ -225,22 +206,21 @@ class Room extends Component {
   };
 
   handlepostsong = async () => {
-    console.log("posting song")
+    console.log("posting song");
     const post = {
       ytlink: this.state.postinput,
       roomCode: this.state.roomCode,
     };
     try {
-      await axios.post(config.apipostYTLink, post).then((res, err)=>{
-        if (res.status===200){
+      await axios.post(config.apipostYTLink, post).then((res, err) => {
+        if (res.status === 200) {
           this.handlegetCurrentSong();
           this.send_songUpdate(true);
-        }else{
-          console.log("error",err);
+        } else {
+          console.log("error", err);
         }
-      })
+      });
       // if post successfull then send update song status via websocket
-
     } catch (ex) {
       if (
         ex.response &&
@@ -253,7 +233,7 @@ class Room extends Component {
   };
 
   send_playPause_status = (status) => {
-    const {chatSocket,updateSong, leaveRoomStatus} = this.state;
+    const { chatSocket, updateSong, leaveRoomStatus } = this.state;
     chatSocket.send(
       JSON.stringify({
         message: "",
@@ -262,7 +242,7 @@ class Room extends Component {
         updateSong: updateSong,
       })
     );
-  }
+  };
 
   handleplaypauseUpdateButton = async (event) => {
     let value = null;
@@ -288,33 +268,32 @@ class Room extends Component {
 
   send_songUpdate = (res) => {
     console.log("SENDING SONG UPDATE ", res);
-    const {chatSocket, leaveRoomStatus, updateSong} = this.state;
-      chatSocket.send(
-        JSON.stringify({
-          message: "",
-          playPausemessage: "",
-          leaveRoom: leaveRoomStatus,
-          updateSong: res,
-        })
+    const { chatSocket, leaveRoomStatus, updateSong } = this.state;
+    chatSocket.send(
+      JSON.stringify({
+        message: "",
+        playPausemessage: "",
+        leaveRoom: leaveRoomStatus,
+        updateSong: res,
+      })
     );
-  }
+  };
 
   send_leaveRoom_status = (e) => {
-    const {chatSocket, updateSong} = this.state;
-      chatSocket.send(
-        JSON.stringify({
-          message: "",
-          playPausemessage: "",
-          leaveRoom: e,
-          updateSong: updateSong,
-        })
+    const { chatSocket, updateSong } = this.state;
+    chatSocket.send(
+      JSON.stringify({
+        message: "",
+        playPausemessage: "",
+        leaveRoom: e,
+        updateSong: updateSong,
+      })
     );
-  }
+  };
 
-  handleNewUserMessage = async(e) => {
-    const {chatSocket, messages, leaveRoomStatus, updateSong} = this.state;
-    // this.setState({messages: [...messages, e]})
-    // this.setState({newmessage: e});
+  handleNewUserMessage = async (e) => {
+    const { chatSocket, leaveRoomStatus, updateSong } = this.state;
+    this.setState({sender: true});
     chatSocket.send(
       JSON.stringify({
         message: e,
@@ -323,19 +302,21 @@ class Room extends Component {
         updateSong: updateSong,
       })
     );
-  }
+  };
+
+  // handleNewUserMessage = async (newMessage) => {
+  //   // this.setState({ messages: [...this.state.messages, newMessage]});
+  //   console.log(newMessage);
+  //   // addUserMessage("sa")
+  //   this.props.handleNewUserMessage(newMessage);
+  //   console.log("messages = ", this.state.messages);
+  // };
 
   render() {
-    const {
-      roomCode,
-      isHost,
-      showSettings,
-      is_playing,
-      bgimage,
-    } = this.state;
-    if (showSettings) {
-      return this.renderSettings();
-    }
+    const { roomCode, isHost, is_playing, bgimage } = this.state;
+    // if (this.state.newmessage !== null) {
+    //   addResponseMessage(this.state.newmessage);
+    // }
     return (
       <div
         className="container text-center justify-content-center bgroom"
@@ -346,7 +327,16 @@ class Room extends Component {
           backgroundRepeat: "no-repeat",
         }}
       >
-        <ChatRoom handleNewUserMessage={this.handleNewUserMessage} newmessage={this.state.newmessage}/>
+        {/* <ChatRoom
+          handleNewUserMessage={this.handleNewUserMessage}
+          newmessage={this.state.newmessage}
+        /> */}
+        <Widget
+          handleNewUserMessage={this.handleNewUserMessage}
+          autofocus={true}
+          title="Audiocave Chat"
+          subtitle="Chat with your friends!"
+        />
         <h3>
           <strong>
             RoomCode: {roomCode} || {isHost ? "HOST" : "USER"}
@@ -364,34 +354,10 @@ class Room extends Component {
                 play={this.state.playPausemessage}
                 guest_can_pause={this.state.guest_can_pause}
                 isHost={isHost}
-                send_status = {this.state.send_status}
+                send_status={this.state.send_status}
                 {...this.state.song_info}
                 playpauseUpdate={this.handleplaypauseUpdateButton}
               />
-            </div>
-            <div className="col-lg-6">
-            <div className="padding">
-                <div className="card-header">
-                    <h4 className="card-title">
-                    <strong>Real-Time Chat</strong>
-                    </h4>
-                    <div className="active d-flex justify-content-center">
-                    <ul id="chat-log">
-                        <p className="bg-secondary">Hello!</p>
-                    </ul>
-                    </div>
-                    <div className="input-group mb-3">
-                    <input
-                        id="chat-message-input"
-                        type="text number"
-                        name="text"
-                        className="form-control"
-                        placeholder="Type a message..."
-                    />
-                    <input id="chat-message-submit" type="button" value="Send" />
-                    </div>
-                </div>
-            </div>
             </div>
           </div>
         </div>
@@ -431,8 +397,10 @@ class Room extends Component {
 
   componentWillUnmount() {
     console.log("componentWillUnmount called");
-    if (this.state.isHost){this.state.chatSocket.close();}
-    this.state.chatSocket.onclose = async(e) => {
+    if (this.state.isHost) {
+      this.state.chatSocket.close();
+    }
+    this.state.chatSocket.onclose = async (e) => {
       console.error("Chat socket closed unexpectedly");
     };
     console.log("componentWillUnmount called done");
