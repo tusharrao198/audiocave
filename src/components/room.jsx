@@ -19,16 +19,16 @@ class Room extends Component {
     song_info: {},
     song: null,
     songurl: null,
-    postinput: null,
-    retrycount: 0,
+    updatedSongPlayingURL: null,
+    linkpostInput: null,
     is_playing: false,
     bgimage: null,
     send_status: null,
-    messages: [],
+    messages: null,
     newmessage: null,
     chatSocket: null,
-    playPausemessage: false,
-    leaveRoomStatus: false,
+    playPausemessage: null,
+    leaveRoom: false,
     updateSong: false,
     sender: false,
   };
@@ -53,9 +53,8 @@ class Room extends Component {
     };
 
     chatSocket.onmessage = async (e) => {
-      const data = JSON.parse(e.data);
-      // console.log("data received",data);
-      this.handleshowdata(data);
+      const data= JSON.parse(e.data);
+      this.handleshowdata(data, Object.keys(data));
     };
 
     if (roomCode !== null && roomCode !== undefined) {
@@ -64,19 +63,31 @@ class Room extends Component {
     }
   }
 
-  handleshowdata = async (e) => {
-    const {sender} =this.state;
-    if (e.message !==null && sender===false){
-      addResponseMessage(e.message);      
+  handleshowdata = async (e, obj) => {
+    const { sender } = this.state;
+    if (e.message !== null && e.message !== undefined && sender === false) {
+      addResponseMessage(e.message);
     }
-    this.setState({
-      playPausemessage: e.playPausemessage,
-      leaveRoomStatus: e.leaveRoom,
-      updateSong: e.updateSong,
-    });
-    if (sender){
+    let i;
+    for (i in obj){
+      if ("playPausemessage"===obj[i]) {
+        // console.log("A");
+        this.setState({ playPausemessage: e.playPausemessage });
+      }
+      if ("updateSong" === obj[i]) {
+        this.setState({ updateSong: e.updateSong });
+      }
+      if ("leaveRoom" === obj[i]) {
+        this.setState({ leaveRoom: e.leaveRoom });
+      }
+      if ("updatedSongPlayingURL" === obj[i]){
+        this.setState({updatedSongPlayingURL: e.updatedSongPlayingURL});
+      } 
+    }
+    if (sender) {
       this.setState({ sender: false });
     }
+    // console.log("this rec", this.state.playPausemessage);
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -91,21 +102,23 @@ class Room extends Component {
     if (prevState.is_playing !== this.state.is_playing) {
       // console.log("isPlaying updated by interval ", this.state.is_playing);
     }
-    if (prevState.songurl !== this.state.songurl) {
-      this.handlegetCurrentSong();
+    if (prevState.updatedSongPlayingURL !== this.state.updatedSongPlayingURL) {
+      // this.handlegetCurrentSong();
+      console.log("updatedSongPlayingURL changed");
+      this.send_songUpdate(true, this.state.updatedSongPlayingURL);
     }
     if (prevState.leaveRoomStatus !== this.state.leaveRoomStatus) {
       this.handleLeaveRoom();
     }
-    if (prevState.updateSong !== this.state.updateSong) {
-      // console.log(
-      //   "updatesong state changed from ",
-      //   prevState.updateSong,
-      //   "to => ",
-      //   this.state.updateSong
-      // );
-      this.handlegetCurrentSong();
-    }
+    // if (prevState.updateSong !== this.state.updateSong) {
+    //   // console.log(
+    //   //   "updatesong state changed from ",
+    //   //   prevState.updateSong,
+    //   //   "to => ",
+    //   //   this.state.updateSong
+    //   // );
+    //   // this.handlegetCurrentSong();
+    // }
     if (prevState.newmessage !== this.state.newmessage) {
       // console.log("newmessage update");
     }
@@ -159,7 +172,9 @@ class Room extends Component {
       await axios.post(config.apiEndpointLeaveRoom).then((res) => {
         if (res.status === 200 || res.status === 201 || res.status === 301) {
           this.props.leaveRoomCallback(null);
-          // console.log("called handleLeaveRoom");
+          if (this.state.isHost) {
+            this.state.chatSocket.close();
+          } // console.log("called handleLeaveRoom");
           toast.error("REDIRECTED TO HOMEPAGE");
           this.props.history.replace("/");
         } else {
@@ -182,7 +197,8 @@ class Room extends Component {
         this.setState({ song: data.song_name });
         this.setState({ songurl: data.song_url });
         this.setState({ song_info: data });
-        this.setState({ bgimage: data.image_url });
+        this.setState({ bgimage: data.image_url});
+        this.setState({ updatedSongPlayingURL: data.song_url});
       }
     } catch (ex) {
       if (
@@ -192,7 +208,7 @@ class Room extends Component {
         // this.state.retrycount <= 2
       ) {
         // this.setState({ retrycount: this.state.retrycount++ });
-        // 7017
+        // 
       }
     }
   };
@@ -200,17 +216,17 @@ class Room extends Component {
   handlepostsong = async () => {
     // console.log("posting song");
     const post = {
-      ytlink: this.state.postinput,
+      ytlink: this.state.linkpostInput,
       roomCode: this.state.roomCode,
     };
     try {
       await axios.post(config.apipostYTLink, post).then((res, err) => {
         if (res.status === 200) {
           this.handlegetCurrentSong();
-          this.send_songUpdate(true);
-        } else {
-          // console.log("error", err);
-        }
+          // this.send_songUpdate(true);
+        } // else {
+        //   // console.log("error", err);
+        // }
       });
       // if post successfull then send update song status via websocket
     } catch (ex) {
@@ -225,13 +241,10 @@ class Room extends Component {
   };
 
   send_playPause_status = (status) => {
-    const { chatSocket, updateSong, leaveRoomStatus } = this.state;
+    const { chatSocket } = this.state;
     chatSocket.send(
       JSON.stringify({
-        message: null,
         playPausemessage: status,
-        leaveRoom: leaveRoomStatus,
-        updateSong: updateSong,
       })
     );
   };
@@ -258,47 +271,46 @@ class Room extends Component {
     this.send_playPause_status(value);
   };
 
-  send_songUpdate = (res) => {
+  send_songUpdate = (res, URL) => {
     console.log("SENDING SONG UPDATE ", res);
-    const { chatSocket, leaveRoomStatus} = this.state;
+    const { chatSocket } = this.state;
     chatSocket.send(
       JSON.stringify({
-        message: null,
-        playPausemessage: null,
-        leaveRoom: leaveRoomStatus,
         updateSong: res,
+        updatedSongPlayingURL: URL,
       })
     );
   };
 
   send_leaveRoom_status = (e) => {
-    const { chatSocket, updateSong } = this.state;
+    const { chatSocket } = this.state;
+    console.log("LEAVE CALLED");
     chatSocket.send(
       JSON.stringify({
-        message: null,
-        playPausemessage: null,
         leaveRoom: e,
-        updateSong: updateSong,
       })
     );
   };
 
   handleNewUserMessage = async (e) => {
-    const { chatSocket, leaveRoomStatus, updateSong } = this.state;
-    this.setState({sender: true});
+    const { chatSocket } = this.state;
+    this.setState({ sender: true });
     chatSocket.send(
       JSON.stringify({
         message: e,
-        playPausemessage: null,
-        leaveRoom: leaveRoomStatus,
-        updateSong: updateSong,
       })
     );
   };
 
-
   render() {
-    const { roomCode, isHost, is_playing, bgimage } = this.state;
+    const {
+      roomCode,
+      isHost,
+      updatedSongPlayingURL, playPausemessage, is_playing,
+      bgimage,
+    } = this.state;
+    console.log("RESULT",playPausemessage);
+    console.log("CHANGES SSDSDSDSD", updatedSongPlayingURL);
     return (
       <div
         className="container text-center justify-content-center bgroom"
@@ -326,15 +338,15 @@ class Room extends Component {
           <div className="row">
             <div className="col-lg-6">
               <MusicPlayer
-                song={this.state.song}
-                songurl={this.state.songurl}
+                // song={this.state.song}
+                // songurl={this.state.songurl}
                 roomCode={this.state.roomCode}
                 play={this.state.playPausemessage}
-                guest_can_pause={this.state.guest_can_pause}
+                // guest_can_pause={this.state.guest_can_pause}
                 isHost={isHost}
-                send_status={this.state.send_status}
-                {...this.state.song_info}
-                song_status={true}
+                // send_status={this.state.send_status}
+                // {...this.state.song_info}
+                updatedSongPlayingURL={this.state.updatedSongPlayingURL}
                 playpauseUpdate={this.handleplaypauseUpdateButton}
               />
             </div>
@@ -358,7 +370,7 @@ class Room extends Component {
             placeholder="Enter youtube url with 11 digits"
             helperText={this.state.error}
             variant="outlined"
-            onChange={(e) => this.setState({ postinput: e.target.value })}
+            onChange={(e) => this.setState({ linkpostInput: e.target.value })}
           />
         </Grid>
         <Grid item xs={12} align="center">
@@ -376,9 +388,6 @@ class Room extends Component {
 
   componentWillUnmount() {
     console.log("componentWillUnmount called");
-    if (this.state.isHost) {
-      this.state.chatSocket.close();
-    }
     this.state.chatSocket.onclose = async (e) => {
       console.error("Chat socket closed unexpectedly");
     };
