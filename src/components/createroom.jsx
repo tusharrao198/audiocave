@@ -127,9 +127,10 @@ class CreateRoom extends Component {
             {title}
           </Typography>
         </Grid>
-        <Grid item xs={12} align="center">
+        {/* <Grid item xs={12} align="center">
           <FormControl component="fieldset">
-            <FormHelperText>Guest Control of Playback State</FormHelperText>
+            <Typography>Allow Guest to control play pause</Typography>
+            <FormHelperText color="white"></FormHelperText>
             <RadioGroup
               row
               defaultValue={this.props.guest_can_pause.toString()}
@@ -149,8 +150,8 @@ class CreateRoom extends Component {
               />
             </RadioGroup>
           </FormControl>
-        </Grid>
-        <Grid item xs={12} align="center">
+        </Grid> */}
+        {/* <Grid item xs={12} align="center">
           <FormControl>
             <TextField
               required={true}
@@ -164,7 +165,7 @@ class CreateRoom extends Component {
             />
             <FormHelperText>Vote</FormHelperText>
           </FormControl>
-        </Grid>
+        </Grid> */}
         {update ? this.renderUpdateButton() : this.renderCreateButton()}
       </Grid>
     );

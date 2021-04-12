@@ -1,120 +1,99 @@
-import React, { Component, createRef, useEffect, useState, useRef } from "react";
-import axios from "axios";
-import config from "../services/config.json";
+import React, {
+  Component,
+  createRef,
+} from "react";
+
 import { toast } from "react-toastify";
 import AudioPlayer from "react-h5-audio-player";
-import "react-h5-audio-player/lib/styles.css";
+// import "react-h5-audio-player/lib/styles.css";
+// import "react-h5-audio-player/lib/styles.less";
+import "./musicplayer.css";
 
 export default class MusicPlayer extends Component {
   constructor(props) {
     super(props);
     this.player = createRef();
   }
-
-  state = {
-    present_songlink: null,
-  };
   componentDidUpdate(prevProps) {
-    // if(prevProps.song_url !== this.props.song_url){
-    //   toast.success(`Now Playing ${this.props.song}`)
-    // }
     if (prevProps.play !== this.props.play && this.props.play !== null) {
       this.Audiofunction(this.props.play);
     }
-
     if (
-      prevProps.updatedSongPlayingURL !== this.props.updatedSongPlayingURL &&
-      this.props.updatedSongPlayingURL !== null
+      prevProps.song_info !== this.props.song_info &&
+      this.props.song_info !== undefined &&
+      this.props.song_info !== null
     ) {
-      // toast.success(`Now Playing ${this.props.song}`);
-      // console.log(
-      //   "this.props.updatedSongPlayingURL",
-      //   this.props.updatedSongPlayingURL
-      // );
-      this.setState({
-        present_songlink: this.props.updatedSongPlayingURL,
-      });
+      // console.log(`Now Playing ${this.props.song_info.song_name}`);
     }
   }
 
   Audiofunction(play) {
     var player = this.player.current;
-
     if (play !== null || play !== undefined) {
-      console.log("type from backend", play);
       if (play) {
-        console.log("inside play ", play);
         player.audio.current.play();
       } else {
-        console.log("inside pause ", play);
         player.audio.current.pause();
       }
     }
-    // return <h1></h1>;
   }
 
   render() {
-    console.log("play in musicplayer", this.props.play);
-    console.log("new url in player", this.state.present_songlink);
-    return (
-      <div className="container">
-        <div className="row text-center">Now Playing {this.props.song}</div>
-        <div className="row">
-          <AudioPlayer
-            autoplay={false}
-            loop={false}
-            autoPlayAfterSrcChange={false}
-            hasDefaultKeyBindings={true}
-            // muted={muted_}
-            src={this.state.present_songlink}
-            onPlay={this.props.playpauseUpdate}
-            onPause={this.props.playpauseUpdate}
-            ref={this.player}
-          />
+    if (this.props.song_info !== undefined && this.props.song_info !== null) {
+      const {
+        song_name,
+        artist,
+        image_url,
+        view_count,
+        song_url,
+      } = this.props.song_info;
+      // console.log("play in musicplayer", this.props.play);
+      // console.log("new url in musicplayer", song_name);
+      return (
+        <div className="container">
+          <div className="card bg-dark text-white">
+            <div className="card-img">
+              <img
+                src={this.props.song_info.image_url}
+                className="card-img"
+                alt="..."
+              />
+            </div>
+            <button className=" card-text btn btn-outline btn-primary btn-lg">
+              Now Playing {this.props.song_info.song_name} By{" "}
+              {this.props.song_info.artist}
+            </button>
+            <div className="row">
+              <AudioPlayer
+                autoplay={false}
+                loop={false}
+                autoPlayAfterSrcChange={false}
+                hasDefaultKeyBindings={true}
+                // muted={muted_}
+                src={this.props.song_info.song_url}
+                onPlay={this.props.playpauseUpdate}
+                onPause={this.props.playpauseUpdate}
+                ref={this.player}
+              />
+            </div>
+          </div>
+          <div className="row justify-content-md-center"></div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      return (
+        <h1>
+          <button
+            className="btn btn-outline btn-primary"
+            onClick={() => {
+              console.log(this.props.song_info);
+              window.location.reload();
+            }}
+          >
+            Loading
+          </button>
+        </h1>
+      );
+    }
   }
 }
-
-
-// if (this.player.current !== null) {
-//   var player = this.player.current;
-//   // console.log("type from backend", this.props.play);
-//   if (this.props.play) {
-//     player.audio.current.play();
-//   } else {
-//     player.audio.current.pause();
-//   }
-// } 
-// export default function MusicPlayer(props) {
-//   const { play, song_status } = props;
-//   var player = useRef();
-
-//   function Audiofunction(play){
-//     console.log("type from backend", play);
-//     if (play) {
-//       player.current.audio.current.play();
-//     } else{
-//       player.current.audio.current.pause();
-//     }
-//     return <h1></h1>
-//   };
-
-//   return (
-//     <div className="App">
-//       <AudioPlayer
-//         autoplay={false}
-//         loop={false}
-//         autoPlayAfterSrcChange={false}
-//         hasDefaultKeyBindings={true}
-//         // muted={muted_}
-//         src={props.song_url}
-//         onPlay={props.playpauseUpdate}
-//         onPause={props.playpauseUpdate}
-//         ref={player}
-//       />
-//       {props.song_status ? Audiofunction(props.play) : <h1></h1>}
-//     </div>
-//   ); 
-// }

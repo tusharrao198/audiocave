@@ -6,29 +6,25 @@ import config from "../services/config.json";
 import { toast } from "react-toastify";
 import "../index.css";
 import MusicPlayer from "./musicplayer";
-import swal from 'sweetalert';
-import { Widget, addResponseMessage, addUserMessage } from "react-chat-widget";
+import swal from "sweetalert";
+import { Widget, addResponseMessage } from "react-chat-widget";
 import "react-chat-widget/lib/styles.css";
-
 
 class Room extends Component {
   state = {
     guest_can_pause: false,
     isHost: false,
     roomCode: this.props.match.params.roomCode,
-    song_info: {},
-    song: null,
-    songurl: null,
+    is_playing: false,
+    song_name: null,
+    song_info: null,
+    songYTUrl: null,
     updatedSongPlayingURL: null,
     linkpostInput: null,
-    is_playing: false,
-    bgimage: null,
-    send_status: null,
-    messages: null,
     newmessage: null,
     chatSocket: null,
     playPausemessage: null,
-    leaveRoom: false,
+    leaveRoomStatus: false,
     updateSong: false,
     sender: false,
   };
@@ -44,7 +40,6 @@ class Room extends Component {
     }
 
     createSocket().then((_) => {
-      // console.log("created socket", _)
       this.setState({ chatSocket: _ });
     });
 
@@ -53,7 +48,7 @@ class Room extends Component {
     };
 
     chatSocket.onmessage = async (e) => {
-      const data= JSON.parse(e.data);
+      const data = JSON.parse(e.data);
       this.handleshowdata(data, Object.keys(data));
     };
 
@@ -65,29 +60,36 @@ class Room extends Component {
 
   handleshowdata = async (e, obj) => {
     const { sender } = this.state;
-    if (e.message !== null && e.message !== undefined && sender === false) {
-      addResponseMessage(e.message);
-    }
-    let i;
-    for (i in obj){
-      if ("playPausemessage"===obj[i]) {
-        // console.log("A");
-        this.setState({ playPausemessage: e.playPausemessage });
+    if (e !== null && e !== undefined) {
+      let i;
+      for (i in obj) {
+        if ("playPausemessage" === obj[i]) {
+          this.setState({ playPausemessage: e.playPausemessage });
+        }
+        if ("updateSong" === obj[i]) {
+          this.setState({ updateSong: e.updateSong });
+        }
+        if ("leaveRoomStatus" === obj[i]) {
+          this.setState({ leaveRoomStatus: e.leaveRoomStatus });
+        }
+        if ("updatedSongPlayingURL" === obj[i]) {
+          console.log("url", e.updatedSongPlayingURL);
+          this.setState({
+            updatedSongPlayingURL: e.updatedSongPlayingURL,
+          });
+        }
+        if ("song_info" === obj[i]) {
+          console.log("info", e.song_info);
+          this.setState({ song_info: e.song_info });
+        }
       }
-      if ("updateSong" === obj[i]) {
-        this.setState({ updateSong: e.updateSong });
+      if (e.message !== null && e.message !== undefined && sender === false) {
+        addResponseMessage(e.message);
       }
-      if ("leaveRoom" === obj[i]) {
-        this.setState({ leaveRoom: e.leaveRoom });
-      }
-      if ("updatedSongPlayingURL" === obj[i]){
-        this.setState({updatedSongPlayingURL: e.updatedSongPlayingURL});
-      } 
     }
     if (sender) {
       this.setState({ sender: false });
     }
-    // console.log("this rec", this.state.playPausemessage);
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -99,45 +101,33 @@ class Room extends Component {
         window.location.reload();
       }
     }
-    if (prevState.is_playing !== this.state.is_playing) {
-      // console.log("isPlaying updated by interval ", this.state.is_playing);
-    }
-    if (prevState.updatedSongPlayingURL !== this.state.updatedSongPlayingURL) {
-      // this.handlegetCurrentSong();
-      console.log("updatedSongPlayingURL changed");
-      this.send_songUpdate(true, this.state.updatedSongPlayingURL);
-    }
+
     if (prevState.leaveRoomStatus !== this.state.leaveRoomStatus) {
+      console.log("IF leaveroom updated", this.state.leaveRoomStatus);
       this.handleLeaveRoom();
     }
-    // if (prevState.updateSong !== this.state.updateSong) {
-    //   // console.log(
-    //   //   "updatesong state changed from ",
-    //   //   prevState.updateSong,
-    //   //   "to => ",
-    //   //   this.state.updateSong
-    //   // );
-    //   // this.handlegetCurrentSong();
-    // }
+
     if (prevState.newmessage !== this.state.newmessage) {
-      // console.log("newmessage update");
+      console.log("newmessage update");
     }
   }
 
   handleRoomData = async () => {
     try {
-      if (this.state.roomCode !== null) {
-        const { data } = await axios.get(
-          config.apiEndpointgetRoom + `${this.state.roomCode}`
-        );
-        this.setState({
-          guest_can_pause: data.guest_can_pause,
-          votes_count_to_skip: data.votes_count_to_skip,
-          isHost: data.ishost,
-          roomCode: data.RoomCodeinSession,
-          is_playing: data.is_playing,
-          songurl: data.songurl,
-        });
+      if (this.state.roomCode !== null && this.state.roomCode !== undefined) {
+        await axios
+          .get(config.apiEndpointgetRoom + `${this.state.roomCode}`)
+          .then((res) => {
+            if (res.status === 200) {
+              this.setState({
+                guest_can_pause: res.data.guest_can_pause,
+                isHost: res.data.ishost,
+                roomCode: res.data.RoomCodeinSession,
+                is_playing: res.data.is_playing,
+                songYTUrl: res.data.songurl,
+              });
+            }
+          });
         console.log("ISHOST", this.state.isHost);
         this.handlegetCurrentSong();
       } else {
@@ -152,7 +142,7 @@ class Room extends Component {
   };
 
   handlBackButtonPress = async () => {
-    // console.log("handlBackButtonPress called");
+    console.log("handlBackButtonPress called");
     if (this.state.isHost) {
       // if host left the room then delete room
       this.send_leaveRoom_status(true);
@@ -162,7 +152,7 @@ class Room extends Component {
         this.props.leaveRoomCallback(null);
         this.props.history.replace("/");
       } else {
-        // console.log("error in handlBackButtonPress");
+        console.log("error in handlBackButtonPress");
       }
     });
   };
@@ -175,9 +165,10 @@ class Room extends Component {
           if (this.state.isHost) {
             this.state.chatSocket.close();
           } // console.log("called handleLeaveRoom");
-          toast.error("REDIRECTED TO HOMEPAGE");
+          swal("Room Deleted By Host \n Go Back to Homepage");
           this.props.history.replace("/");
         } else {
+          swal("Room Deleted By Host \n Go Back to Homepage");
           // toast.error("REDIRECTED TO HOMEPAGE");
           this.props.history.replace("/");
         }
@@ -192,23 +183,20 @@ class Room extends Component {
   handlegetCurrentSong = async () => {
     try {
       const { data } = await axios.get(config.apigetYTLink);
-      if (this.state.song !== data.song_name) {
-        console.log("Current Song_info Added");
-        this.setState({ song: data.song_name });
-        this.setState({ songurl: data.song_url });
+      if (this.state.song_name !== data.song_name) {
+        // console.log("Current Song_info Added", data.song_name);
+        this.setState({ song_name: data.song_name });
         this.setState({ song_info: data });
-        this.setState({ bgimage: data.image_url});
-        this.setState({ updatedSongPlayingURL: data.song_url});
+        this.setState({ bgimage: data.image_url });
+        this.setState({ updatedSongPlayingURL: data.song_url });
       }
     } catch (ex) {
       if (
         ex.response &&
         ex.response.status >= 400 &&
         ex.response.status <= 500
-        // this.state.retrycount <= 2
       ) {
-        // this.setState({ retrycount: this.state.retrycount++ });
-        // 
+        // error
       }
     }
   };
@@ -222,11 +210,14 @@ class Room extends Component {
     try {
       await axios.post(config.apipostYTLink, post).then((res, err) => {
         if (res.status === 200) {
-          this.handlegetCurrentSong();
-          // this.send_songUpdate(true);
-        } // else {
-        //   // console.log("error", err);
-        // }
+          this.handlegetCurrentSong().then(() => {
+            this.send_songUpdate(
+              true,
+              this.state.updatedSongPlayingURL,
+              this.state.song_info
+            );
+          });
+        }
       });
       // if post successfull then send update song status via websocket
     } catch (ex) {
@@ -238,6 +229,28 @@ class Room extends Component {
         toast.error("Error Posting link / Try Another Song");
       }
     }
+  };
+
+  send_songUpdate = (res, URL, song_info) => {
+    console.log("SENDING SONG UPDATE ", res);
+    const { chatSocket } = this.state;
+    chatSocket.send(
+      JSON.stringify({
+        updateSong: res,
+        updatedSongPlayingURL: URL,
+        song_info: song_info,
+      })
+    );
+  };
+
+  send_leaveRoom_status = (e) => {
+    const { chatSocket } = this.state;
+    console.log("LEAVE CALLED");
+    chatSocket.send(
+      JSON.stringify({
+        leaveRoomStatus: e,
+      })
+    );
   };
 
   send_playPause_status = (status) => {
@@ -271,27 +284,6 @@ class Room extends Component {
     this.send_playPause_status(value);
   };
 
-  send_songUpdate = (res, URL) => {
-    console.log("SENDING SONG UPDATE ", res);
-    const { chatSocket } = this.state;
-    chatSocket.send(
-      JSON.stringify({
-        updateSong: res,
-        updatedSongPlayingURL: URL,
-      })
-    );
-  };
-
-  send_leaveRoom_status = (e) => {
-    const { chatSocket } = this.state;
-    console.log("LEAVE CALLED");
-    chatSocket.send(
-      JSON.stringify({
-        leaveRoom: e,
-      })
-    );
-  };
-
   handleNewUserMessage = async (e) => {
     const { chatSocket } = this.state;
     this.setState({ sender: true });
@@ -306,92 +298,83 @@ class Room extends Component {
     const {
       roomCode,
       isHost,
-      updatedSongPlayingURL, playPausemessage, is_playing,
-      bgimage,
+      updatedSongPlayingURL,
+      song_info,
+      playPausemessage,
+      is_playing,
     } = this.state;
-    console.log("RESULT",playPausemessage);
-    console.log("CHANGES SSDSDSDSD", updatedSongPlayingURL);
+
     return (
-      <div
-        className="container text-center justify-content-center bgroom"
-        style={{
-          backgroundImage: `url(${bgimage})`,
-          backgroundPosition: "center",
-          backgroundSize: "cover",
-          backgroundRepeat: "no-repeat",
-        }}
-      >
-        <Widget
-          handleNewUserMessage={this.handleNewUserMessage}
-          autofocus={true}
-          title="Audiocave Chat"
-          subtitle="Chat with your friends!"
-        />
-        <h3>
-          <strong>
-            RoomCode: {roomCode} || {isHost ? "HOST" : "USER"}
-          </strong>
-          <br></br>
-          <strong>{is_playing ? "Playing" : "Paused"}</strong>
-        </h3>
-        <div className="container-fluid">
-          <div className="row">
-            <div className="col-lg-6">
-              <MusicPlayer
-                // song={this.state.song}
-                // songurl={this.state.songurl}
-                roomCode={this.state.roomCode}
-                play={this.state.playPausemessage}
-                // guest_can_pause={this.state.guest_can_pause}
-                isHost={isHost}
-                // send_status={this.state.send_status}
-                // {...this.state.song_info}
-                updatedSongPlayingURL={this.state.updatedSongPlayingURL}
-                playpauseUpdate={this.handleplaypauseUpdateButton}
-              />
-            </div>
-          </div>
-        </div>
+      // <!-- ======= Coordinators ======= -->
+      <div className="main">
         <button
-          className="btn btn-danger btn-sm"
+          className="btn btn-outline btn-danger toRight"
           onClick={this.handlBackButtonPress}
         >
           Leave Room
         </button>
-        <Grid item xs={12} align="center">
-          <Typography variant="h4" component="h4">
-            POST LINK
-          </Typography>
-        </Grid>
-        <Grid item xs={12} align="center">
-          <TextField
-            error={this.state.error}
-            label="Code"
-            placeholder="Enter youtube url with 11 digits"
-            helperText={this.state.error}
-            variant="outlined"
-            onChange={(e) => this.setState({ linkpostInput: e.target.value })}
+        <div className="container justify-content-md-center">
+          <button className="btn btn-outline btn-primary btn-lg space">
+            Room: {roomCode} || {isHost ? "HOST" : "USER"}
+          </button>
+          {/* <strong>{is_playing ? "Playing" : "Paused"}</strong> */}
+
+          <div className="row justify-content-md-center"></div>
+
+          <div className="row justify-content-md-center">
+            <div className="col-lg d-flex">
+              <MusicPlayer
+                roomCode={roomCode}
+                play={playPausemessage}
+                song_info={song_info}
+                updatedSongPlayingURL={updatedSongPlayingURL}
+                playpauseUpdate={this.handleplaypauseUpdateButton}
+              />
+            </div>
+            <div className="col-lg-3 col-md-6 toMiddle">
+              <div className="row text-center">
+                <h5 className="text-center">Post New Link Here</h5>
+                <Grid item xs={12} align="center">
+                  <TextField
+                    error={this.state.error}
+                    label="Link"
+                    placeholder="Enter youtube url with 11 digits"
+                    helperText={this.state.error}
+                    variant="outlined"
+                    onChange={(e) =>
+                      this.setState({ linkpostInput: e.target.value })
+                    }
+                  />
+                </Grid>
+              </div>
+              <div className="row justify-content-md-center">
+                <button
+                  className="btn btn-outline btn-danger"
+                  onClick={this.handlepostsong}
+                >
+                  Post
+                </button>
+              </div>
+            </div>
+          </div>
+          {/* <div className="">
+        </div> */}
+          <Widget
+            handleNewUserMessage={this.handleNewUserMessage}
+            autofocus={true}
+            title="Audiocave Chat"
+            subtitle="Chat with your friends!"
           />
-        </Grid>
-        <Grid item xs={12} align="center">
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={this.handlepostsong}
-          >
-            Post
-          </Button>
-        </Grid>
+        </div>
       </div>
     );
   }
 
   componentWillUnmount() {
-    console.log("componentWillUnmount called");
+    // console.log("componentWillUnmount called");
     this.state.chatSocket.onclose = async (e) => {
       console.error("Chat socket closed unexpectedly");
     };
-    // console.log("componentWillUnmount called done");
   }
 }
 

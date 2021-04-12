@@ -23,7 +23,7 @@ class App extends Component {
   async componentDidMount() {
     try {
       await axios.get(config.apiEndpointUserinRoom).then((res) => {
-        if (res.status === 200 || res.status === 301) {
+        if (res.status === 200 && res.data.code !== undefined) {
           this.setState({ roomCode: res.data.code });
         }
       });
@@ -42,7 +42,7 @@ class App extends Component {
   };
   
   clearRoomCode = (code_) => {
-    console.log("code_ in App.js", code_);
+    // console.log("code_ in App.js", code_);
     this.setState({
       roomCode: code_,
     });
@@ -53,13 +53,13 @@ class App extends Component {
       <div className="App">
         <header
           className="App-header"
-          style={{
-// backgroundImage: `url(https://user-images.githubusercontent.com/56690827/109695806-5d05fa00-7bb2-11eb-92c7-8acf6c7d55ac.jpg)`,
-            backgroundImage: `url(https://user-images.githubusercontent.com/56690827/112964664-29dd6900-9166-11eb-813e-7159e71b4ea9.jpg)`,
-            backgroundPosition: "center",
-            backgroundSize: "cover",
-            backgroundRepeat: "no-repeat",
-          }}
+          // style={{
+          //   // backgroundImage: `url(https://user-images.githubusercontent.com/56690827/109695806-5d05fa00-7bb2-11eb-92c7-8acf6c7d55ac.jpg)`,
+          //   // backgroundImage: `url(https://user-images.githubusercontent.com/56690827/112964664-29dd6900-9166-11eb-813e-7159e71b4ea9.jpg)`,
+          //   backgroundPosition: "center",
+          //   backgroundSize: "cover",
+          //   backgroundRepeat: "no-repeat",
+          // }}
         >
           <ToastContainer />
           {/* <Navbar /> */}
