@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import axios from "axios";
+// import "react-chat-widget/lib/styles.css";
 import { TextField, Button, Grid, Typography } from "@material-ui/core";
 import config from "../services/config.json";
 import { toast } from "react-toastify";
@@ -8,7 +9,6 @@ import "../index.css";
 import MusicPlayer from "./musicplayer";
 import swal from "sweetalert";
 import { Widget, addResponseMessage } from "react-chat-widget";
-import "react-chat-widget/lib/styles.css";
 
 class Room extends Component {
   state = {
@@ -372,7 +372,9 @@ class Room extends Component {
         </div> */}
           <Widget
             handleNewUserMessage={this.handleNewUserMessage}
-            autofocus={true}
+            autofocus={false}
+            showCloseButton={true}
+            // fullScreenMode={true}
             title="Audiocave Chat"
             subtitle="Chat with your friends!"
           />
