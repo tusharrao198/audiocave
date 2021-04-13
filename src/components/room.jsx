@@ -63,7 +63,7 @@ class Room extends Component {
     if (e !== null && e !== undefined) {
       let i;
       for (i in obj) {
-        if ("playPausemessage" === obj[i]) {
+        if ("playPausemessage" === obj[i] && sender === false) {
           this.setState({ playPausemessage: e.playPausemessage });
         }
         if ("updateSong" === obj[i]) {
@@ -79,7 +79,7 @@ class Room extends Component {
           });
         }
         if ("song_info" === obj[i]) {
-          console.log("info", e.song_info);
+          // console.log("info", e.song_info);
           this.setState({ song_info: e.song_info });
         }
       }
@@ -162,9 +162,9 @@ class Room extends Component {
       await axios.post(config.apiEndpointLeaveRoom).then((res) => {
         if (res.status === 200 || res.status === 201 || res.status === 301) {
           this.props.leaveRoomCallback(null);
-          if (this.state.isHost) {
-            this.state.chatSocket.close();
-          } // console.log("called handleLeaveRoom");
+          // if (this.state.isHost) {
+          //   this.state.chatSocket.close();
+          // } // console.log("called handleLeaveRoom");
           swal("Room Deleted By Host \n Go Back to Homepage");
           this.props.history.replace("/");
         } else {
@@ -185,6 +185,11 @@ class Room extends Component {
       const { data } = await axios.get(config.apigetYTLink);
       if (this.state.song_name !== data.song_name) {
         // console.log("Current Song_info Added", data.song_name);
+        this.send_songUpdate(
+          true,
+          data.song_url,
+          data
+        );
         this.setState({ song_name: data.song_name });
         this.setState({ song_info: data });
         this.setState({ bgimage: data.image_url });
@@ -210,13 +215,14 @@ class Room extends Component {
     try {
       await axios.post(config.apipostYTLink, post).then((res, err) => {
         if (res.status === 200) {
-          this.handlegetCurrentSong().then(() => {
-            this.send_songUpdate(
-              true,
-              this.state.updatedSongPlayingURL,
-              this.state.song_info
-            );
-          });
+          this.handlegetCurrentSong();
+          // .then(() => {
+            // this.send_songUpdate(
+            //   true,
+            //   this.state.updatedSongPlayingURL,
+            //   this.state.song_info
+            // );
+          // });
         }
       });
       // if post successfull then send update song status via websocket
@@ -255,6 +261,7 @@ class Room extends Component {
 
   send_playPause_status = (status) => {
     const { chatSocket } = this.state;
+    this.setState({ sender: true });
     chatSocket.send(
       JSON.stringify({
         playPausemessage: status,
@@ -276,12 +283,17 @@ class Room extends Component {
       musicurl: this.state.songurl,
       roomCode: this.state.roomCode,
     };
-    try {
-      const { data } = await axios.patch(config.apiYTUpdate, post);
-    } catch (ex) {
-      toast.error("Error Updating Room Details");
+    if (value !== null){
+      try {
+        await axios.patch(config.apiYTUpdate, post).then((res) => {
+          if (res.status === 200) {
+            this.send_playPause_status(value);
+          }
+        });
+      } catch (ex) {
+        toast.error("Error Updating Room Details");
+      }
     }
-    this.send_playPause_status(value);
   };
 
   handleNewUserMessage = async (e) => {
@@ -301,11 +313,10 @@ class Room extends Component {
       updatedSongPlayingURL,
       song_info,
       playPausemessage,
-      is_playing,
+      // is_playing,
     } = this.state;
 
     return (
-      // <!-- ======= Coordinators ======= -->
       <div className="main">
         <button
           className="btn btn-outline btn-danger toRight"
@@ -372,6 +383,9 @@ class Room extends Component {
 
   componentWillUnmount() {
     // console.log("componentWillUnmount called");
+    if (this.state.isHost) {
+      this.state.chatSocket.close();
+    }
     this.state.chatSocket.onclose = async (e) => {
       console.error("Chat socket closed unexpectedly");
     };
