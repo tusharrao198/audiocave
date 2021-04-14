@@ -1,6 +1,7 @@
 from django.db import models
 import random
 import string
+from .utils import load_random_song
 
 
 def generate_room_code():
@@ -11,7 +12,7 @@ def generate_room_code():
             break
     return code_
 
-url_ = "https://www.youtube.com/watch?v=CtUIXnJKPgU"
+url_ = load_random_song()
 
 class Room(models.Model):
     code = models.CharField(default=generate_room_code, max_length=50, unique=True, primary_key=True)

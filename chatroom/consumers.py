@@ -37,7 +37,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         data_received = {}
         for i in list(event.keys()):
             data_received[i] = event[i]
-        print("data_recieved", data_received,"\n")
+        # print("data_recieved", data_received,"\n")
 
         # Send message to WebSocket
         await self.send(

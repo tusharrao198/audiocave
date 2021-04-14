@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from music_room.models import Room
 
+from music_room.utils import load_random_song
 # from spotifyapi.models import Votecount
 # from youtubeapi.models import Youtubedata
 
@@ -33,8 +34,7 @@ def getjson(u):
     song_info = {
         "song_id": result_["id"],
         "song_name": result_["title"],
-        "artist": result_["creator"],
-        "image_url": result_["thumbnails"][3]["url"],
+        "image_url": result_["thumbnails"][-1]["url"],
         "duration": result_["duration"],
         "view_count": result_["view_count"],
         # "vote": len(votes),
@@ -45,6 +45,12 @@ def getjson(u):
         if "audio only" in f:
             song_info["song_url"] = i["url"]
             break
+    if result_.get('artist') is not None:
+        song_info["artist"] = result_.get('artist')
+    elif result_.get('creator') is not None:
+        song_info["artist"] = result_.get('creator')
+    else:
+        song_info["artist"] = result_.get('extractor')
     return song_info
 
 
@@ -64,7 +70,7 @@ def getYTlink(request, *args, **kwargs):
         print("post youtube url", url_)
         ydl = {}
         if url_ is None:
-            url_ = "https://www.youtube.com/watch?v=_NGQfFCFUn4"
+            url_ = load_random_song()
         result = ""
         for i in range(10):
             result_ = youtube_dl.YoutubeDL(ydl).extract_info(url_, download=False)
@@ -76,8 +82,7 @@ def getYTlink(request, *args, **kwargs):
             song_info = {
                 "song_id": result["id"],
                 "song_name": result["title"],
-                "artist": result["creator"],
-                "image_url": result["thumbnails"][3]["url"],
+                "image_url": result["thumbnails"][-1]["url"],
                 "duration": result["duration"],
                 "view_count": result["view_count"],
             }
@@ -88,6 +93,16 @@ def getYTlink(request, *args, **kwargs):
                     break
                 else:
                     print("NO AUDIO FOUND")
+
+            if result.get('artist') is not None:
+                song_info["artist"] = result.get('artist')
+
+            elif result.get('creator') is not None:
+                song_info["artist"] = result.get('creator')
+
+            else:
+                song_info["artist"] = result.get('extractor')
+
             if room.current_song != song_info["song_id"]:
                 room.current_song = song_info["song_id"]
                 try:
