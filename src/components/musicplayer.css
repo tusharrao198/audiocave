@@ -6,8 +6,9 @@
   font-family: inherit;
   width: 100%;
   padding: 10px 15px;
-  background-color: #22282e;
-  box-shadow: #01153b;
+  background-color: transparent !important;
+  box-shadow: transparent !important;
+  cursor: pointer;
 }
 .rhap_container:focus:not(:focus-visible) {
   outline: 0;
@@ -97,7 +98,7 @@
   height: 100%;
   position: absolute;
   z-index: 2;
-  background-color: #868686;
+  background-color: #149df8 !important;
   border-radius: 2px;
 }
 
@@ -121,7 +122,7 @@
   height: 20px;
   margin-left: -10px;
   top: -8px;
-  background: #868686;
+  background: #0e67eb !important;
   border-radius: 50px;
   box-shadow: rgba(134, 134, 134, 0.5) 0 0 5px;
 }
@@ -137,13 +138,14 @@
   display: flex;
   flex: 1 0 auto;
   align-items: center;
+  opacity: 0;
 }
 
 .rhap_repeat-button {
   font-size: 26px;
   width: 26px;
   height: 26px;
-  color: #868686;
+  color: #53a7f5;
   margin-right: 6px;
 }
 
@@ -156,16 +158,25 @@
 
 .rhap_main-controls-button {
   margin: 0 3px;
-  color: #868686;
+  color: #0ef7eb !important;
   font-size: 35px;
   width: 35px;
   height: 35px;
+  cursor: pointer !important;
 }
 
 .rhap_play-pause-button {
   font-size: 40px;
   width: 40px;
   height: 40px;
+  color: #029cf5 !important;
+}
+
+.rhap_play-pause-button:hover {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: #f8c211 !important;
 }
 
 .rhap_volume-controls {
@@ -180,7 +191,7 @@
   font-size: 26px;
   width: 26px;
   height: 26px;
-  color: #868686;
+  color: #f6fafc !important;
   margin-right: 6px;
 }
 
@@ -207,7 +218,7 @@
   position: relative;
   width: 100%;
   height: 4px;
-  background: #dddddd;
+  background: #6bcefc !important;
   border-radius: 2px;
 }
 
@@ -219,10 +230,10 @@
   margin-left: -6px;
   left: 0;
   top: -4px;
-  background: #868686;
+  background: #029cf5 !important;
   opacity: 0.9;
   border-radius: 50px;
-  box-shadow: rgba(134, 134, 134, 0.5) 0 0 3px;
+  box-shadow: rgba(9, 217, 245, 0.5) 0 0 3px !important;
   cursor: pointer;
 }
 .rhap_volume-indicator:hover {
@@ -233,7 +244,7 @@
   height: 100%;
   position: absolute;
   z-index: 2;
-  background-color: #868686;
+  background-color: #f10d0d !important;
   border-radius: 2px;
 }
 
@@ -247,6 +258,7 @@
 }
 .rhap_button-clear:hover {
   opacity: 0.9;
+  color:#029cf5 !important;
   transition-duration: 0.2s;
 }
 .rhap_button-clear:active {
@@ -254,4 +266,15 @@
 }
 .rhap_button-clear:focus:not(:focus-visible) {
   outline: 0;
+}
+
+@media screen and (max-width:850px) {
+  .rhap_main-controls-button {
+    margin: 0 3px;
+    color: #0ef7eb !important;
+    font-size: 35px;
+    width: 35px;
+    height: 35px;
+    cursor: pointer !important;
+  }
 }

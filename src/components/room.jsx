@@ -3,12 +3,15 @@ import { w3cwebsocket as W3CWebSocket } from "websocket";
 import axios from "axios";
 // import "react-chat-widget/lib/styles.css";
 import { TextField, Button, Grid, Typography } from "@material-ui/core";
+import { createMuiTheme } from "@material-ui/core/styles";
 import config from "../services/config.json";
 import { toast } from "react-toastify";
 import "../index.css";
 import MusicPlayer from "./musicplayer";
 import swal from "sweetalert";
 import { Widget, addResponseMessage } from "react-chat-widget";
+import { Preloader, Audio } from "react-preloader-icon";
+
 
 class Room extends Component {
   state = {
@@ -73,7 +76,7 @@ class Room extends Component {
           this.setState({ leaveRoomStatus: e.leaveRoomStatus });
         }
         if ("updatedSongPlayingURL" === obj[i]) {
-          console.log("url", e.updatedSongPlayingURL);
+          // console.log("url", e.updatedSongPlayingURL);
           this.setState({
             updatedSongPlayingURL: e.updatedSongPlayingURL,
           });
@@ -207,7 +210,13 @@ class Room extends Component {
   };
 
   handlepostsong = async () => {
-    // console.log("posting song");
+    this.setState({ song_info: null });
+    // console.log("posting song", this.state.linkpostInput);
+    if ( this.state.linkpostInput === null){
+      // if (this.state.linkpostInput.toString()===""){
+      toast.success("Skipping song");
+      // }
+    }
     const post = {
       ytlink: this.state.linkpostInput,
       roomCode: this.state.roomCode,
@@ -238,7 +247,7 @@ class Room extends Component {
   };
 
   send_songUpdate = (res, URL, song_info) => {
-    console.log("SENDING SONG UPDATE ", res);
+    // console.log("SENDING SONG UPDATE ", res);
     const { chatSocket } = this.state;
     chatSocket.send(
       JSON.stringify({
@@ -316,39 +325,53 @@ class Room extends Component {
       // is_playing,
     } = this.state;
 
+    const marginH = window.innerHeight / 2 + "px";
+    const marginW = window.innerWidth / 2 + "px";
+
+    console.log("w", marginW)
     return (
       <div className="main">
-        <button
-          className="btn btn-outline btn-danger toRight"
-          onClick={this.handlBackButtonPress}
-        >
-          Leave Room
-        </button>
         <div className="container justify-content-md-center">
-          <button className="btn btn-outline btn-primary btn-lg space">
-            Room: {roomCode} || {isHost ? "HOST" : "USER"}
+          <button
+            className="text-white btn btn-outline-danger toBottom"
+            onClick={this.handlBackButtonPress}
+          >
+            Leave Room
           </button>
           {/* <strong>{is_playing ? "Playing" : "Paused"}</strong> */}
 
           <div className="row justify-content-md-center"></div>
 
           <div className="row justify-content-md-center">
-            <div className="col-lg d-flex">
+            <div className="col-lg d-flex" style={{ height: "523px" }}>
               <MusicPlayer
                 roomCode={roomCode}
                 play={playPausemessage}
                 song_info={song_info}
+                room={roomCode}
+                isHost={isHost}
                 updatedSongPlayingURL={updatedSongPlayingURL}
                 playpauseUpdate={this.handleplaypauseUpdateButton}
+                handlepostsong={this.handlepostsong}
               />
             </div>
-            <div className="col-lg-3 col-md-6 toMiddle">
-              <div className="row text-center">
-                <h5 className="text-center">Post New Link Here</h5>
-                <Grid item xs={12} align="center">
+            <div className="col-lg-3 col-md-6 toCenter padTop">
+              <div className="row justify-content-md-center text-center">
+                <button className="btn btn-outline-primary">
+                  <h5 className="text-center">Post New Link Here</h5>
+                </button>
+                <Grid
+                  item
+                  xs={12}
+                  align="center"
+                  style={{ color: "white !important", paddingTop: "1.5%" }}
+                >
                   <TextField
                     error={this.state.error}
-                    label="Link"
+                    label="Enter youtube url with 11 digits"
+                    InputLabelProps={{
+                      className: "setMyColor",
+                    }}
                     placeholder="Enter youtube url with 11 digits"
                     helperText={this.state.error}
                     variant="outlined"
@@ -360,10 +383,10 @@ class Room extends Component {
               </div>
               <div className="row justify-content-md-center">
                 <button
-                  className="btn btn-outline btn-danger"
+                  className="btn btn-outline-success"
                   onClick={this.handlepostsong}
                 >
-                  Post
+                  Post/Skip
                 </button>
               </div>
             </div>

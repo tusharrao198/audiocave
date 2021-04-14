@@ -14,6 +14,7 @@ import Homepage from "./components/homepage";
 // import Background from "./static/images/wall3.jpg";
 import config from "./services/config.json";
 import swal from 'sweetalert';
+import $ from 'jquery';
 
 class App extends Component {
   state = {
@@ -21,6 +22,15 @@ class App extends Component {
   };
 
   async componentDidMount() {
+    // Preloader
+    $(window).on('load', function() {
+      if ($('#preloader').length) {
+        $('#preloader').delay(500).fadeOut('slow', function() {
+          $(this).remove();
+        });
+      }
+    });
+
     try {
       await axios.get(config.apiEndpointUserinRoom).then((res) => {
         if (res.status === 200 && res.data.code !== undefined) {
@@ -86,6 +96,7 @@ class App extends Component {
             </Switch>
           </main>
         </header>
+        <div id="preloader"></div>
       </div>
     );
   }

@@ -12,25 +12,6 @@ code {
     monospace;
 }
 
-.toRight {
-  align-items: right;
-  margin-right: 0;
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-
-.toMiddle {
-  position: relative;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
-}
-
-.space {
-  padding-bottom: 6%;
-}
 /* 
 .rcw-conversation-container > .rcw-header {
   background-color: red;
@@ -101,6 +82,11 @@ code {
   .rcw-conversation-container .rcw-title {
     padding: 0 0 3px;
     font-size: medium;
+  }
+
+  .rcw-conversation-container{
+    padding: 15% 0 3%;
+    font-size: medium; 
   }
   .rcw-conversation-container .rcw-close-button {
     background-color: #011744;
@@ -353,7 +339,7 @@ code {
     display: flex;
     -ms-flex-direction: column;
     flex-direction: column;
-    height: 50%;
+    height: 70%;
   }
 }
 .rcw-launcher .rcw-badge {
@@ -543,7 +529,7 @@ code {
     height: 100vh;
     margin: 0;
     max-width: none;
-    width: 50%;
+    width: 80%;
   }
 }
 .rcw-previewer .rcw-message-img {
@@ -584,3 +570,114 @@ code {
   background-size: cover;
   background-position: center center;
 } */
+
+/*------/ Preloader /------*/
+#preloader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  overflow: hidden;
+  background: #fff;
+}
+
+#preloader:before {
+  content: "";
+  position: fixed;
+  top: calc(50% - 30px);
+  left: calc(50% - 30px);
+  border: 6px solid #f2f2f2;
+  border-top: 6px solid #0078ff;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  -webkit-animation: animate-preloader 1s linear infinite;
+  animation: animate-preloader 1s linear infinite;
+}
+
+@-webkit-keyframes animate-preloader {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes animate-preloader {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.setMyColor{
+  color: white !important;
+}
+
+.setToTop{
+  align-items: top;
+  margin-right: 0;
+  position: absolute;  
+  top : 30%;
+  cursor: pointer;
+}
+
+.toBottom {
+  align-items: left;
+  margin-right: 0;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  cursor: pointer;
+}
+
+.toMiddle {
+  position: relative;
+  margin-bottom: "0";
+  margin-right: "0";
+  margin-top: "0";
+  margin-left: "0";
+  cursor: pointer;
+}
+
+.space {
+  padding-bottom: 6%;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 992px) {
+  .padTop {
+    padding-top: 10%;
+  }
+}
+
+@media screen and (min-width: 992px) {
+  .padTop {
+    justify-content: center;
+    position: relative;
+    margin-top: 20%;
+    cursor: pointer;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .padTop {
+    justify-content: center;
+    position: relative;
+    padding-bottom: 4rem;
+    cursor: pointer;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .row {
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+}

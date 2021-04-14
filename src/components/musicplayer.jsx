@@ -1,13 +1,11 @@
-import React, {
-  Component,
-  createRef,
-} from "react";
+import React, { Component, createRef } from "react";
 
 import { toast } from "react-toastify";
 import AudioPlayer from "react-h5-audio-player";
 // import "react-h5-audio-player/lib/styles.css";
 // import "react-h5-audio-player/lib/styles.less";
 import "./musicplayer.css";
+import { Preloader, Audio } from "react-preloader-icon";
 
 export default class MusicPlayer extends Component {
   constructor(props) {
@@ -51,28 +49,45 @@ export default class MusicPlayer extends Component {
       // console.log("new url in musicplayer", song_name);
       return (
         <div className="container">
-          <div className="card bg-dark text-white">
+          <div className="card bg-transparent text-white">
+            <button className="btn btn-outline-warning pullup">
+              <b>Note:- While Posting Link Pause the current song</b>
+            </button>
+            <button className="btn btn-outline-primary btn-lg space">
+              <b>
+                Room: {this.props.roomCode} ||{" "}
+                {this.props.isHost ? <b>HOST</b> : "USER"}
+              </b>
+              {"      "}
+            </button>
             <div className="card-img">
               <img
                 src={this.props.song_info.image_url}
-                className="card-img"
+                className="card-img img-fluid"
                 alt="..."
               />
             </div>
-            <button className=" card-text btn btn-outline btn-primary btn-lg">
-              Now Playing {this.props.song_info.song_name} By{" "}
-              {this.props.song_info.artist}
+            <button className=" card-text btn btn-outline-primary btn-lg">
+              <b>
+                Now Playing {this.props.song_info.song_name} By{" "}
+                {this.props.song_info.artist}
+              </b>
             </button>
             <div className="row">
               <AudioPlayer
                 autoplay={false}
+                layout="horizontal-reverse"
                 loop={false}
                 autoPlayAfterSrcChange={false}
                 hasDefaultKeyBindings={true}
+                showSkipControls={true}
+                showJumpControls={false}
                 // muted={muted_}
                 src={this.props.song_info.song_url}
                 onPlay={this.props.playpauseUpdate}
                 onPause={this.props.playpauseUpdate}
+                onClickNext={this.props.handlepostsong}
+                // onClickPrevious={(e) => {console.log("prev e",e)}}
                 ref={this.player}
               />
             </div>
@@ -81,18 +96,18 @@ export default class MusicPlayer extends Component {
         </div>
       );
     } else {
+      const margin = window.innerHeight/2+"px";
+      console.log(typeof margin)
       return (
-        <h1>
-          <button
-            className="btn btn-outline btn-primary"
-            onClick={() => {
-              console.log(this.props.song_info);
-              window.location.reload();
-            }}
-          >
-            Loading
-          </button>
-        </h1>
+        <div style={{ margin: "50%", color: "white " }}>
+          <Preloader
+            use={Audio}
+            size={100}
+            strokeWidth={10}
+            strokeColor="#262626"
+            duration={2000}
+          />
+        </div>
       );
     }
   }
