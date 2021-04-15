@@ -8,7 +8,7 @@
   padding: 10px 15px;
   background-color: transparent !important;
   box-shadow: transparent !important;
-  cursor: pointer;
+  /* cursor: pointer; */
 }
 .rhap_container:focus:not(:focus-visible) {
   outline: 0;
@@ -162,7 +162,7 @@
   font-size: 35px;
   width: 35px;
   height: 35px;
-  cursor: pointer !important;
+  /* cursor: pointer !important; */
 }
 
 .rhap_play-pause-button {
@@ -234,7 +234,7 @@
   opacity: 0.9;
   border-radius: 50px;
   box-shadow: rgba(9, 217, 245, 0.5) 0 0 3px !important;
-  cursor: pointer;
+  /* cursor: pointer; */
 }
 .rhap_volume-indicator:hover {
   opacity: 0.9;
@@ -275,6 +275,6 @@
     font-size: 35px;
     width: 35px;
     height: 35px;
-    cursor: pointer !important;
+    /* cursor: pointer !important; */
   }
 }

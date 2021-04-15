@@ -12,9 +12,10 @@ export default class MusicPlayer extends Component {
     super(props);
     this.player = createRef();
   }
+
   componentDidUpdate(prevProps) {
     if (prevProps.play !== this.props.play && this.props.play !== null) {
-      this.Audiofunction(this.props.play);
+      this.Audiofunction(this.player);
     }
     if (
       prevProps.song_info !== this.props.song_info &&
@@ -25,13 +26,17 @@ export default class MusicPlayer extends Component {
     }
   }
 
-  Audiofunction(play) {
-    var player = this.player.current;
-    if (play !== null || play !== undefined) {
-      if (play) {
-        player.audio.current.play();
+  async Audiofunction(player) {
+    if (
+      player !== null &&
+      player !== undefined &&
+      this.props.play !== null &&
+      this.props.play !== undefined
+    ) {
+      if (this.props.play) {
+        await player.current.audio.current.play();
       } else {
-        player.audio.current.pause();
+        await player.current.audio.current.pause();
       }
     }
   }
@@ -45,8 +50,8 @@ export default class MusicPlayer extends Component {
         view_count,
         song_url,
       } = this.props.song_info;
-      // console.log("play in musicplayer", this.props.play);
-      // console.log("new url in musicplayer", song_name);
+      // console.log("1. play in musicplayer", this.props.play);
+      // console.log("2. new url in musicplayer", song_name);
       return (
         <div className="container">
           <div className="card bg-transparent text-white">
@@ -87,7 +92,9 @@ export default class MusicPlayer extends Component {
                 onPlay={this.props.playpauseUpdate}
                 onPause={this.props.playpauseUpdate}
                 onClickNext={this.props.handlepostsong}
-                // onClickPrevious={(e) => {console.log("prev e",e)}}
+                // onClickPrevious={(e) => {
+                //   // console.log("prev e", e.type);
+                // }}
                 ref={this.player}
               />
             </div>
@@ -96,8 +103,8 @@ export default class MusicPlayer extends Component {
         </div>
       );
     } else {
-      const margin = window.innerHeight/2+"px";
-      console.log(typeof margin)
+      // const margin = window.innerHeight / 2 + "px";
+      // console.log(typeof margin);
       return (
         <div style={{ margin: "50%", color: "white " }}>
           <Preloader

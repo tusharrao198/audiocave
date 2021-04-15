@@ -106,12 +106,12 @@ class Room extends Component {
     }
 
     if (prevState.leaveRoomStatus !== this.state.leaveRoomStatus) {
-      console.log("IF leaveroom updated", this.state.leaveRoomStatus);
+      // console.log("IF leaveroom updated", this.state.leaveRoomStatus);
       this.handleLeaveRoom();
     }
 
     if (prevState.newmessage !== this.state.newmessage) {
-      console.log("newmessage update");
+      // console.log("newmessage update");
     }
   }
 
@@ -145,7 +145,7 @@ class Room extends Component {
   };
 
   handlBackButtonPress = async () => {
-    console.log("handlBackButtonPress called");
+    // console.log("handlBackButtonPress called");
     if (this.state.isHost) {
       // if host left the room then delete room
       this.send_leaveRoom_status(true);
@@ -210,8 +210,9 @@ class Room extends Component {
   };
 
   handlepostsong = async () => {
-    this.setState({ song_info: null });
-    // console.log("posting song", this.state.linkpostInput);
+    this.setState({ song_info: null, playPausemessage: null });
+    // console.log("posting song", this.state.playPausemessage);
+
     if ( this.state.linkpostInput === null){
       // if (this.state.linkpostInput.toString()===""){
       toast.success("Skipping song");
@@ -260,7 +261,7 @@ class Room extends Component {
 
   send_leaveRoom_status = (e) => {
     const { chatSocket } = this.state;
-    console.log("LEAVE CALLED");
+    // console.log("LEAVE CALLED");
     chatSocket.send(
       JSON.stringify({
         leaveRoomStatus: e,
@@ -279,6 +280,8 @@ class Room extends Component {
   };
 
   handleplaypauseUpdateButton = async (event) => {
+    this.setState({playPausemessage: null });
+    // console.log("play-pause song", this.state.playPausemessage);
     let value = null;
     if (event.type === "play") {
       // console.log("PLAY SEND");
@@ -325,10 +328,10 @@ class Room extends Component {
       // is_playing,
     } = this.state;
 
-    const marginH = window.innerHeight / 2 + "px";
-    const marginW = window.innerWidth / 2 + "px";
+    // const marginH = window.innerHeight / 2 + "px";
+    // const marginW = window.innerWidth / 2 + "px";
 
-    console.log("w", marginW)
+    // console.log("w", marginW)
     return (
       <div className="main">
         <div className="container justify-content-md-center">
