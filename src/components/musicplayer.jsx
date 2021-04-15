@@ -15,10 +15,10 @@ export default class MusicPlayer extends Component {
 
   state = {
     player: this.player,
-  }
+  };
 
   async componentDidMount() {
-    this.setState({player: this.player});
+    this.setState({ player: this.player });
   }
 
   componentDidUpdate(prevProps) {
@@ -35,32 +35,52 @@ export default class MusicPlayer extends Component {
   }
 
   async Audiofunction(player) {
-    try{
-        if (
-          player !== null &&
-          player !== undefined &&
-          this.props.play !== null &&
-          this.props.play !== undefined
-        ) {
-          if (this.props.play) {
-            try{
-              await player.current.audio.current.play();
-            }catch(err){
-              await this.state.player.current.audio.current.play();
-            }
-          } else {
-              try {
-                await player.current.audio.current.pause();
-              } catch (err) {
-                console.log("err");
-                this.state.player.current.audio.current.pause();
-              }
+    try {
+      if (
+        player !== null &&
+        player !== undefined &&
+        this.props.play !== null &&
+        this.props.play !== undefined
+      ) {
+        if (this.props.play) {
+          try {
+            await player.current.audio.current.play();
+          } catch (err) {
+            await this.state.player.current.audio.current.play();
+          }
+        } else {
+          try {
+            await player.current.audio.current.pause();
+          } catch (err) {
+            console.log("err");
+            this.state.player.current.audio.current.pause();
           }
         }
-    }catch (err){
-      console.log("err in Audiofunction")
+      }
+    } catch (err) {
+      console.log("err in Audiofunction");
     }
   }
+
+  // handleGotoDuration = () => {
+  //   this.state.player.current.audio.currentTime = 
+  // }
+
+  // handleSongDuration = (e) => {
+  //   console.log("song dur called");
+  //   if (e.type) {
+  //     console.log(
+  //       "DFGHJH",
+  //       this.state.player.current.audio.current.oncanplaythrough
+  //     );
+  //     this.state.player.current.audio.current.currentTime =
+  //       e.srcElement.currentTime;
+  //     console.log(
+  //       "success update",
+  //       this.state.player.current.audio.current.ontimeupdate
+  //     );
+  //   }
+  // }
 
   render() {
     if (this.props.song_info !== undefined && this.props.song_info !== null) {
@@ -102,7 +122,7 @@ export default class MusicPlayer extends Component {
             <div className="row">
               <AudioPlayer
                 autoplay={false}
-                layout="horizontal-reverse"
+                layout="stacked-reverse"
                 loop={false}
                 autoPlayAfterSrcChange={false}
                 hasDefaultKeyBindings={true}
@@ -113,9 +133,31 @@ export default class MusicPlayer extends Component {
                 onPlay={this.props.playpauseUpdate}
                 onPause={this.props.playpauseUpdate}
                 onClickNext={this.props.handlepostsong}
-                // onClickPrevious={(e) => {
-                //   // console.log("prev e", e.type);
-                // }}
+                onClickPrevious={(e) => {
+                  console.log("prev e", e.type);
+                }}
+                onEnded={this.props.handlepostsong}
+                onDragStart={(e) => {
+                  console.log("onDragStart=> ", e.type);
+                }}
+                onDragMove={(e) => {
+                  console.log("onDragMove => ", e.type);
+                }}
+                onDragEnd={(e) => {
+                  console.log("onDragEnd => ", e.type);
+                }}
+                onSeeking={(e) => {
+                  console.log("onSeeking => ", e);
+                }}
+                onSeeked={(e) => {
+                  console.log("onSeeked => ", e.srcElement.currentTime);
+                }}
+                onVolumeChange={(e) => {
+                  console.log("onVolumeChange => ", e.type);
+                }}
+                onCanPlay={(e) => {
+                  console.log("onCanPlay => ", e.type);
+                }}
                 ref={this.player}
               />
             </div>

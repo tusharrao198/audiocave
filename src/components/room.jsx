@@ -188,14 +188,10 @@ class Room extends Component {
       const { data } = await axios.get(config.apigetYTLink);
       if (this.state.song_name !== data.song_name) {
         // console.log("Current Song_info Added", data.song_name);
-        this.send_songUpdate(
-          true,
-          data.song_url,
-          data
-        );
+        this.send_songUpdate(true, data.song_url, data);
         this.setState({ song_name: data.song_name });
         this.setState({ song_info: data });
-        this.setState({ bgimage: data.image_url });
+        // this.setState({ bg_image: data.image_url });
         this.setState({ updatedSongPlayingURL: data.song_url });
       }
     } catch (ex) {
@@ -209,14 +205,14 @@ class Room extends Component {
     }
   };
 
-  handlepostsong = async () => {
+  handlepostsong = async (e) => {
     this.setState({ song_info: null, playPausemessage: null });
     // console.log("posting song", this.state.playPausemessage);
-
-    if ( this.state.linkpostInput === null){
-      // if (this.state.linkpostInput.toString()===""){
+    if (e.type === "ended") {
+      toast.success("Playing Next song");
+    }    
+    else if (this.state.linkpostInput === null) {
       toast.success("Skipping song");
-      // }
     }
     const post = {
       ytlink: this.state.linkpostInput,
@@ -227,11 +223,11 @@ class Room extends Component {
         if (res.status === 200) {
           this.handlegetCurrentSong();
           // .then(() => {
-            // this.send_songUpdate(
-            //   true,
-            //   this.state.updatedSongPlayingURL,
-            //   this.state.song_info
-            // );
+          // this.send_songUpdate(
+          //   true,
+          //   this.state.updatedSongPlayingURL,
+          //   this.state.song_info
+          // );
           // });
         }
       });
@@ -280,7 +276,7 @@ class Room extends Component {
   };
 
   handleplaypauseUpdateButton = async (event) => {
-    this.setState({playPausemessage: null });
+    this.setState({ playPausemessage: null });
     // console.log("play-pause song", this.state.playPausemessage);
     let value = null;
     if (event.type === "play") {
@@ -295,7 +291,7 @@ class Room extends Component {
       musicurl: this.state.songurl,
       roomCode: this.state.roomCode,
     };
-    if (value !== null){
+    if (value !== null) {
       try {
         await axios.patch(config.apiYTUpdate, post).then((res) => {
           if (res.status === 200) {
@@ -325,15 +321,14 @@ class Room extends Component {
       updatedSongPlayingURL,
       song_info,
       playPausemessage,
-      // is_playing,
     } = this.state;
 
     // const marginH = window.innerHeight / 2 + "px";
     // const marginW = window.innerWidth / 2 + "px";
-
     // console.log("w", marginW)
     return (
-      <div className="main">
+      <div
+        className="main">
         <div className="container justify-content-md-center">
           <button
             className="text-white btn btn-outline-danger toBottom"
@@ -394,8 +389,6 @@ class Room extends Component {
               </div>
             </div>
           </div>
-          {/* <div className="">
-        </div> */}
           <Widget
             handleNewUserMessage={this.handleNewUserMessage}
             autofocus={false}
