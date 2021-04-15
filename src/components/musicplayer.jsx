@@ -13,6 +13,14 @@ export default class MusicPlayer extends Component {
     this.player = createRef();
   }
 
+  state = {
+    player: this.player,
+  }
+
+  async componentDidMount() {
+    this.setState({player: this.player});
+  }
+
   componentDidUpdate(prevProps) {
     if (prevProps.play !== this.props.play && this.props.play !== null) {
       this.Audiofunction(this.player);
@@ -27,17 +35,30 @@ export default class MusicPlayer extends Component {
   }
 
   async Audiofunction(player) {
-    if (
-      player !== null &&
-      player !== undefined &&
-      this.props.play !== null &&
-      this.props.play !== undefined
-    ) {
-      if (this.props.play) {
-        await player.current.audio.current.play();
-      } else {
-        await player.current.audio.current.pause();
-      }
+    try{
+        if (
+          player !== null &&
+          player !== undefined &&
+          this.props.play !== null &&
+          this.props.play !== undefined
+        ) {
+          if (this.props.play) {
+            try{
+              await player.current.audio.current.play();
+            }catch(err){
+              await this.state.player.current.audio.current.play();
+            }
+          } else {
+              try {
+                await player.current.audio.current.pause();
+              } catch (err) {
+                console.log("err");
+                this.state.player.current.audio.current.pause();
+              }
+          }
+        }
+    }catch (err){
+      console.log("err in Audiofunction")
     }
   }
 
