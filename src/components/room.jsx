@@ -57,7 +57,7 @@ class Room extends Component {
 
     if (roomCode !== null && roomCode !== undefined) {
       this.handleRoomData();
-      // console.log("componentDidMount called");
+      console.log("componentDidMount called");
     }
   }
 
@@ -66,7 +66,10 @@ class Room extends Component {
     if (e !== null && e !== undefined) {
       let i;
       for (i in obj) {
-        if ("playPausemessage" === obj[i] && sender === false) {
+        // if ("playPausemessage" === obj[i] && sender === false) {
+        //   this.setState({ playPausemessage: e.playPausemessage });
+        // }
+        if ("playPausemessage" === obj[i]) {
           this.setState({ playPausemessage: e.playPausemessage });
         }
         if ("updateSong" === obj[i]) {
@@ -188,7 +191,6 @@ class Room extends Component {
       const { data } = await axios.get(config.apigetYTLink);
       if (this.state.song_name !== data.song_name) {
         // console.log("Current Song_info Added", data.song_name);
-        this.send_songUpdate(true, data.song_url, data);
         this.setState({ song_name: data.song_name });
         this.setState({ song_info: data });
         // this.setState({ bg_image: data.image_url });
@@ -221,17 +223,15 @@ class Room extends Component {
     try {
       await axios.post(config.apipostYTLink, post).then((res, err) => {
         if (res.status === 200) {
-          this.handlegetCurrentSong();
-          // .then(() => {
-          // this.send_songUpdate(
-          //   true,
-          //   this.state.updatedSongPlayingURL,
-          //   this.state.song_info
-          // );
-          // });
+          this.handlegetCurrentSong().then(() => {
+            this.send_songUpdate(
+              true,
+              this.state.updatedSongPlayingURL,
+              this.state.song_info
+            );
+          }); // if post successfull then send update song status via websocket
         }
       });
-      // if post successfull then send update song status via websocket
     } catch (ex) {
       if (
         ex.response &&
@@ -304,7 +304,7 @@ class Room extends Component {
     }
   };
 
-  handleNewUserMessage = async (e) => {
+  handleNewUserMessage = (e) => {
     const { chatSocket } = this.state;
     this.setState({ sender: true });
     chatSocket.send(
@@ -315,6 +315,7 @@ class Room extends Component {
   };
 
   render() {
+    console.log("chatsocket connected", this.state.chatSocket);
     const {
       roomCode,
       isHost,
