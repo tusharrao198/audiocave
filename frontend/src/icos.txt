@@ -1,0 +1,10 @@
+32x32: https://user-images.githubusercontent.com/56690827/114082366-45194880-98cb-11eb-9588-5d5c0ac54edf.png
+
+16x16: https://user-images.githubusercontent.com/56690827/114082354-421e5800-98cb-11eb-8619-2065facf2c2b.png
+
+apple-touch-icon: https://user-images.githubusercontent.com/56690827/114082326-3a5eb380-98cb-11eb-9877-0509dbae3dab.png
+
+512x512: https://user-images.githubusercontent.com/56690827/114082321-37fc5980-98cb-11eb-8e26-0362b18e6a5b.png
+
+192x192: https://user-images.githubusercontent.com/56690827/114082293-2fa41e80-98cb-11eb-9c30-609758a4fd1f.png
+

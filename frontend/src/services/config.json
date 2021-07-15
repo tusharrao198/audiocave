@@ -1,9 +1,13 @@
 {
   "apiEndpointgetRoom": "/api/getroom/",
   "apiEndpointJoinRoom": "/api/joinroom/",
-  "gotoRoom": "/room/",
   "apiEndpointCreateRoom": "/api/createroom/",
   "apiEndpointLeaveRoom": "/api/userleaveroom/",
   "apiEndpointUpdateRoom": "/api/updateroom/",
-  "apiEndpointCurrentSong": "/spotify/currentsong/"
+  "apiEndpointCurrentSong": "/spotify/currentsong/",
+  "apiEndpointUserinRoom": "/api/userinroom/",
+  "apigetYTLink": "/youtube/getlink/",
+  "apipostYTLink": "/youtube/getlink/",
+  "apiYTUpdate": "/youtube/update/",
+  "apigotoRoom": "/room/"
 }

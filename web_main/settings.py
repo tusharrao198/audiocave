@@ -23,21 +23,25 @@ except:
     DEBUG = os.environ.get("DEBUG")
 
 ALLOWED_HOSTS = [
+    "d02bf50103ba.ngrok.io",
     "audiocave.herokuapp.com",
     "127.0.0.1",
     "localhost",
+    "192.168.1.42"
 ]
 
 # CSRF
 CORS_ORIGIN_ALLOW_ALL = False
 CSRF_COOKIE_NAME = "csrftoken"
 CORS_ORIGIN_WHITELIST = [
+    "http://d02bf50103ba.ngrok.io",
     "https://audiocave.herokuapp.com",
     "https://localhost:3000",
     "http://localhost:5000",
     "https://localhost:5000",
     "http://localhost:3000",
     "http://127.0.0.1:8000",
+    "http://192.168.1.42:8000",
 ]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -46,7 +50,7 @@ CORS_ALLOW_CREDENTIALS = True
 INSTALLED_APPS = [
     "channels",
     "music_room.apps.MusicRoomConfig",
-    "spotifyapi.apps.SpotifyapiConfig",
+    # "spotifyapi.apps.SpotifyapiConfig",
     "youtubeapi.apps.YoutubeapiConfig",
     "chatroom.apps.ChatroomConfig",
     "django.contrib.admin",
@@ -78,21 +82,21 @@ ROOT_URLCONF = "web_main.urls"
 
 ASGI_APPLICATION = "web_main.asgi.application"
 
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#         'CONFIG': {
-#             "hosts": [('127.0.0.1', 6379)],
-#         },
-#     },
-# }
-
-
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
     },
 }
+
+
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels.layers.InMemoryChannelLayer',
+#     },
+# }
 
 TEMPLATE_DIR = os.path.join(BASE_DIR, "music_room", "templates", "music_room/")
 

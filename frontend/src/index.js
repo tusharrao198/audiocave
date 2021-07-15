@@ -12,9 +12,9 @@ axios.defaults.xsrfCookieName = "csrftoken";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 ReactDOM.render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>,
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>,
   document.getElementById("root")
 );
 

@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component} from "react";
 import "./App.css";
 import { Redirect, Route, Switch, Link } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -9,38 +9,50 @@ import JoinRoom from "./components/joinroom";
 import Room from "./components/room";
 import CreateRoom from "./components/createroom";
 import NotFound from "./components/notfound";
-import Navbar from "./components/navbar";
+// import Navbar from "./components/navbar";
 import Homepage from "./components/homepage";
 // import Background from "./static/images/wall3.jpg";
+import config from "./services/config.json";
+import swal from 'sweetalert';
+import $ from 'jquery';
+
 class App extends Component {
   state = {
     roomCode: null,
   };
 
   async componentDidMount() {
-    console.log("Mat BOL ");
-    const { data } = await axios.get(`/api/userinroom/`);
-    // console.log("AB BOL NA ");
-    this.setState({ roomCode: data.code });
-    const { roomCode } = this.state;
-    // console.log("ASYNC APP>JS ROOOOM", roomCode);
+    // Preloader
+    $(window).on('load', function() {
+      if ($('#preloader').length) {
+        $('#preloader').delay(500).fadeOut('slow', function() {
+          $(this).remove();
+        });
+      }
+    });
+
+    try {
+      await axios.get(config.apiEndpointUserinRoom).then((res) => {
+        if (res.status === 200 && res.data.code !== undefined) {
+          this.setState({ roomCode: res.data.code });
+        }
+      });
+    }catch (ex){
+      // console.log("roomCode",this.state.roomCode);
+    } 
   }
 
   handleredirectSession = () => {
-    // console.log("ROOMCODE::::::", this.state.roomCode);
-    if (this.state.roomCode !== null) {
-      // console.log("SSSSSSS");
-      alert("Session found!");
+    if (this.state.roomCode !== null && this.state.roomCode !== undefined) {
+      swal("Session found!");
       return <Redirect to={`/room/${this.state.roomCode}`} />;
     } else {
-      // console.log("IS NULL");
-      // this.setState({ roomCode: null });
       return <Homepage />;
     }
   };
-  //
+  
   clearRoomCode = (code_) => {
-    console.log("leaveRoomCallback data came was ", code_);
+    // console.log("code_ in App.js", code_);
     this.setState({
       roomCode: code_,
     });
@@ -48,18 +60,19 @@ class App extends Component {
 
   render() {
     return (
-      <div classNam="App">
+      <div className="App">
         <header
           className="App-header"
-          style={{
-            backgroundImage: `url(https://user-images.githubusercontent.com/56690827/109695806-5d05fa00-7bb2-11eb-92c7-8acf6c7d55ac.jpg)`,
-            backgroundPosition: "center",
-            backgroundSize: "cover",
-            backgroundRepeat: "no-repeat",
-          }}
+          // style={{
+            // // backgroundImage: `url(https://user-images.githubusercontent.com/56690827/109695806-5d05fa00-7bb2-11eb-92c7-8acf6c7d55ac.jpg)`,
+            // // backgroundImage: `url(https://user-images.githubusercontent.com/56690827/112964664-29dd6900-9166-11eb-813e-7159e71b4ea9.jpg)`,
+            // backgroundPosition: "center",
+            // backgroundSize: "cover",
+            // backgroundRepeat: "no-repeat",
+          // }}
         >
           <ToastContainer />
-          <Navbar />
+          {/* <Navbar /> */}
           <main className="container">
             <Switch>
               <Route
@@ -83,32 +96,10 @@ class App extends Component {
             </Switch>
           </main>
         </header>
+        <div id="preloader"></div>
       </div>
     );
   }
 }
 
 export default App;
-
-// function App() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//         <p>
-//           HELLO WORLD!
-//         </p>
-//         <a
-//           className="App-link"
-//           href="https://reactjs.org"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           Learn React
-//         </a>
-//       </header>
-//     </div>
-//   );
-// }
-
-// export default App;

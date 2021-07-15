@@ -11,9 +11,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 venv
-ytd_player.json
-add_songs.py
-del.py
 # C extensions
 *.so
 

@@ -54,7 +54,7 @@ class CreateRoom extends Component {
       config.apiEndpointCreateRoom,
       post_
     );
-    this.props.history.push(`${config.gotoRoom}${data.code}`);
+    this.props.history.push(`${config.apigotoRoom}${data.code}`);
   };
 
   handleUpdateButton = async () => {
@@ -125,11 +125,10 @@ class CreateRoom extends Component {
             {title}
           </Typography>
         </Grid>
-        <Grid item xs={12} align="center">
+        {/* <Grid item xs={12} align="center">
           <FormControl component="fieldset">
-            <FormHelperText>
-              <div align="center">Guest Control of Playback State</div>
-            </FormHelperText>
+            <Typography>Allow Guest to control play pause</Typography>
+            <FormHelperText color="white"></FormHelperText>
             <RadioGroup
               row
               defaultValue={this.props.guest_can_pause.toString()}
@@ -149,8 +148,8 @@ class CreateRoom extends Component {
               />
             </RadioGroup>
           </FormControl>
-        </Grid>
-        <Grid item xs={12} align="center">
+        </Grid> */}
+        {/* <Grid item xs={12} align="center">
           <FormControl>
             <TextField
               required={true}
@@ -162,11 +161,9 @@ class CreateRoom extends Component {
                 style: { textAlign: "center" },
               }}
             />
-            <FormHelperText>
-              <div align="center">Votes Required To Skip Song</div>
-            </FormHelperText>
+            <FormHelperText>Vote</FormHelperText>
           </FormControl>
-        </Grid>
+        </Grid> */}
         {update ? this.renderUpdateButton() : this.renderCreateButton()}
       </Grid>
     );

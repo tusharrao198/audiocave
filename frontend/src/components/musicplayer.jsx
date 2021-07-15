@@ -1,129 +1,184 @@
-import React, { Component } from "react";
-import axios from "axios";
-import config from "../services/config.json";
-import { toast } from "react-toastify";
-import { Redirect, Route, Switch, Link } from "react-router-dom";
-import {
-  Card,
-  Button,
-  Grid,
-  Typography,
-  TextField,
-  IconButton,
-  LinearProgress,
-} from "@material-ui/core";
-import PlayArrowIcon from "@material-ui/icons/PlayArrow";
-import PauseIcon from "@material-ui/icons/Pause";
-import SkipNextIcon from "@material-ui/icons/SkipNext";
-import { createMuiTheme, ThemeProvider } from "@material-ui/core";
-import AudioPlayer from "material-ui-audio-player";
+import React, { Component, createRef } from "react";
 
-class MusicPlayer extends Component {
+import { toast } from "react-toastify";
+import AudioPlayer from "react-h5-audio-player";
+// import "react-h5-audio-player/lib/styles.css";
+// import "react-h5-audio-player/lib/styles.less";
+import "./musicplayer.css";
+import { Preloader, Audio } from "react-preloader-icon";
+
+export default class MusicPlayer extends Component {
+  constructor(props) {
+    super(props);
+    this.player = createRef();
+  }
+
   state = {
-    roomCode: this.props.roomCode,
-    is_playing: false,
-    musicurl: this.props.songurl,
+    player: this.player,
   };
 
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.is_playing !== this.props.play) {
-      // console.log("playing state has changed.");
-      // toast.error("playing state has changed ", this.state.is_playing);
-      this.setState({ is_playing: this.props.play });
-      // console.log("in did update ", document.getElementById('audio'));
-      if (this.state.is_playing) {
-        document.getElementById("audio").play();
-      } else {
-        document.getElementById("audio").pause();
-      }
+  async componentDidMount() {
+    this.setState({ player: this.player });
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.play !== this.props.play && this.props.play !== null) {
+      this.Audiofunction(this.player);
+    }
+    if (
+      prevProps.song_info !== this.props.song_info &&
+      this.props.song_info !== undefined &&
+      this.props.song_info !== null
+    ) {
+      // console.log(`Now Playing ${this.props.song_info.song_name}`);
     }
   }
 
-  handleButton = () => {
-    let playpause_btn = document.querySelector(".playpause-track");
-    let myAudio = document.getElementById("audio");
-    if (myAudio.paused) {
-      // console.log("/ false to true")
-      // playpause_btn.innerHTML = '<i class="fa fa-pause-circle fa-3x"></i>';
-      this.handleplaypauseUpdateButton(true);
-    } else {
-      // console.log("// true to false")
-      // playpause_btn.innerHTML = '<i class="fa fa-play-circle fa-3x"></i>';
-      this.handleplaypauseUpdateButton(false);
-    }
-    if (this.props.play) {
-      playpause_btn.innerHTML = '<i class="fa fa-play-circle fa-3x"></i>';
-    }
-    if (this.props.play === false) {
-      playpause_btn.innerHTML = '<i class="fa fa-pause-circle fa-3x"></i>';
-    }
-  };
-
-  handleplaypauseUpdateButton = async (value) => {
-    // console.log("handleplaypauseUpdateButton Called");
-    const post = {
-      is_playing: value,
-      musicurl: this.state.musicurl,
-      roomCode: this.state.roomCode,
-    };
-
+  async Audiofunction(player) {
     try {
-      console.log("Sending Updates", post);
-      const { data } = await axios.patch("/youtube/update/", post);
-    } catch (ex) {
-      toast.error("Error Updating Room Details");
+      if (
+        player !== null &&
+        player !== undefined &&
+        this.props.play !== null &&
+        this.props.play !== undefined
+      ) {
+        if (this.props.play) {
+          try {
+            await player.current.audio.current.play();
+          } catch (err) {
+            await this.state.player.current.audio.current.play();
+          }
+        } else {
+          try {
+            await player.current.audio.current.pause();
+          } catch (err) {
+            console.log("err");
+            this.state.player.current.audio.current.pause();
+          }
+        }
+      }
+    } catch (err) {
+      console.log("err in Audiofunction");
     }
-  };
+  }
 
-  handledisablebutton = () => {
-    if (this.props.isHost || this.props.guest_can_pause) {
-      document.getElementById("submit_button").disabled = false;
-      this.handleButton();
-    } else {
-      document.getElementById("submit_button").disabled = true;
-      toast.warning("DENIED ACCESS BY HOST");
-      setTimeout(
-        () => (document.getElementById("submit_button").disabled = false),
-        2000
-      );
-    }
-  };
+  // handleGotoDuration = () => {
+  //   this.state.player.current.audio.currentTime = 
+  // }
+
+  // handleSongDuration = (e) => {
+  //   console.log("song dur called");
+  //   if (e.type) {
+  //     console.log(
+  //       "DFGHJH",
+  //       this.state.player.current.audio.current.oncanplaythrough
+  //     );
+  //     this.state.player.current.audio.current.currentTime =
+  //       e.srcElement.currentTime;
+  //     console.log(
+  //       "success update",
+  //       this.state.player.current.audio.current.ontimeupdate
+  //     );
+  //   }
+  // }
 
   render() {
-    return (
-      <div className="container">
+    if (this.props.song_info !== undefined && this.props.song_info !== null) {
+      const {
+        song_name,
+        artist,
+        image_url,
+        view_count,
+        song_url,
+      } = this.props.song_info;
+      // console.log("1. play in musicplayer", this.props.play);
+      // console.log("2. new url in musicplayer", song_name);
+      return (
         <div className="container">
-          <img src={this.props.image_url} height="100%" width="100%" />
-        </div>
-        <div className="container">
-          <div>
-            <strong>Artist : {this.props.artist}</strong>
-          </div>
-          <div>
-            <strong>Song : {this.props.song_name}</strong>
-          </div>
-          <div className="buttons">
-            <div
-              class="playpause-track"
-              id="submit_button"
-              onClick={this.handledisablebutton}
-            >
-              <i class="fa fa-play-circle fa-3x"></i>
+          <div className="card bg-transparent text-white">
+            <button className="btn btn-outline-warning pullup">
+              <b>Note:- While Posting Link Pause the current song</b>
+            </button>
+            <button className="btn btn-outline-primary btn-lg space">
+              <b>
+                Room: {this.props.roomCode} ||{" "}
+                {this.props.isHost ? <b>HOST</b> : "USER"}
+              </b>
+              {"      "}
+            </button>
+            <div className="card-img">
+              <img
+                src={this.props.song_info.image_url}
+                className="card-img img-fluid"
+                alt="..."
+              />
             </div>
-            <audio
-              id="audio"
-              src={this.props.song_url}
-              border="0"
-              width="100%"
-              height="60"
-              autostart="false"
-              loop="false"
-            ></audio>
+            <button className=" card-text btn btn-outline-primary btn-lg">
+              <b>
+                Now Playing {this.props.song_info.song_name} By{" "}
+                {this.props.song_info.artist}
+              </b>
+            </button>
+            <div className="row">
+              <AudioPlayer
+                autoplay={false}
+                layout="stacked-reverse"
+                loop={false}
+                autoPlayAfterSrcChange={false}
+                hasDefaultKeyBindings={true}
+                showSkipControls={true}
+                showJumpControls={false}
+                // muted={muted_}
+                src={this.props.song_info.song_url}
+                onPlay={this.props.playpauseUpdate}
+                onPause={this.props.playpauseUpdate}
+                onClickNext={this.props.handlepostsong}
+                onClickPrevious={(e) => {
+                  console.log("prev e", e.type);
+                }}
+                onEnded={this.props.handlepostsong}
+                onDragStart={(e) => {
+                  console.log("onDragStart=> ", e.type);
+                }}
+                onDragMove={(e) => {
+                  console.log("onDragMove => ", e.type);
+                }}
+                onDragEnd={(e) => {
+                  console.log("onDragEnd => ", e.type);
+                }}
+                onSeeking={(e) => {
+                  console.log("onSeeking => ", e);
+                }}
+                onSeeked={(e) => {
+                  console.log("onSeeked => ", e.srcElement.currentTime);
+                }}
+                onVolumeChange={(e) => {
+                  console.log("onVolumeChange => ", e.type);
+                }}
+                onCanPlay={(e) => {
+                  console.log("onCanPlay => ", e.type);
+                }}
+                ref={this.player}
+              />
+            </div>
           </div>
+          <div className="row justify-content-md-center"></div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      // const margin = window.innerHeight / 2 + "px";
+      // console.log(typeof margin);
+      return (
+        <div style={{ margin: "50%", color: "white " }}>
+          <Preloader
+            use={Audio}
+            size={100}
+            strokeWidth={10}
+            strokeColor="#262626"
+            duration={2000}
+          />
+        </div>
+      );
+    }
   }
 }
-
-export default MusicPlayer;

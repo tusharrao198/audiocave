@@ -8,7 +8,7 @@ from django.views.generic import TemplateView
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("music_room.urls")),
-    path("spotify/", include("spotifyapi.urls")),
+    # path("spotify/", include("spotifyapi.urls")),
     path("youtube/", include("youtubeapi.urls")),
     path("chat/", include("chatroom.urls")),
     path("", TemplateView.as_view(template_name="index.html"), name="App.js"),
