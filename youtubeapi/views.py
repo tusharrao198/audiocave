@@ -50,7 +50,7 @@ def getjson(u):
     elif result_.get('creator') is not None:
         song_info["artist"] = result_.get('creator')
     else:
-        song_info["artist"] = result_.get('extractor')
+        song_info["artist"] = result_.get('channel')
     return song_info
 
 
@@ -99,9 +99,8 @@ def getYTlink(request, *args, **kwargs):
 
             elif result.get('creator') is not None:
                 song_info["artist"] = result.get('creator')
-
             else:
-                song_info["artist"] = result.get('extractor')
+                song_info["artist"] = result.get('channel')
 
             if room.current_song != song_info["song_id"]:
                 room.current_song = song_info["song_id"]
